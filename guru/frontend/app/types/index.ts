@@ -1,0 +1,46 @@
+export interface Teacher {
+  id: string;
+  fullName: string;
+  schoolName: string;
+  city: string;
+  username: string;
+}
+
+export interface Student {
+  id: string;
+  teacherId: string;
+  name: string;
+  class: string; // Grade / Class
+  currentLevel: number;
+  riskScore: number; // 0-100%
+  riskClass: 'high' | 'medium' | 'low';
+  qrUrl: string;
+  age?: number;
+  gender?: 'boy' | 'girl';
+}
+
+export interface ActivityLog {
+  id: string;
+  teacherId: string;
+  studentName: string;
+  action: string;
+  timestamp: string;
+}
+
+export interface AddStudentModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  student: Student | null;
+  onCopy?: () => void;
+}
+
+export interface StudentTableProps {
+  students: Student[];
+  onShowQR: (student: Student) => void;
+  onDelete: (studentId: string) => void;
+  onAddStudent: () => void;
+}
+
+export interface ActivityLogListProps {
+  logs: ActivityLog[];
+}

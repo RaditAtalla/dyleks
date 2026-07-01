@@ -1,0 +1,199 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { useAuth } from '../hooks/useAuth';
+import { GraduationCap, ArrowRight, User, School, MapPin, Lock, UserPlus } from 'lucide-react';
+
+export default function RegisterPage() {
+  const { register } = useAuth();
+  const [fullName, setFullName] = useState('');
+  const [schoolName, setSchoolName] = useState('');
+  const [city, setCity] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setIsSubmitting(true);
+
+    try {
+      const res = await register(fullName, schoolName, city, username, password);
+      if (!res.success) {
+        setError(res.error || 'Pendaftaran gagal. Coba lagi.');
+        setIsSubmitting(false);
+      }
+    } catch (err) {
+      setError('Terjadi kesalahan. Silakan coba lagi.');
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 py-12 sm:px-6 lg:px-8">
+      {/* Title for SEO / browser tag */}
+      <title>Daftar - DyLeks Guru Portal</title>
+
+      <div className="w-full max-w-md space-y-6">
+        {/* Brand Logo */}
+        <div className="flex flex-col items-center text-center">
+          <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-slate-900 text-white shadow-sm mb-3">
+            <GraduationCap className="w-6 h-6" />
+          </div>
+          <h2 className="text-2xl font-bold tracking-tight text-slate-800">
+            Daftar Akun Guru
+          </h2>
+          <p className="mt-1 text-sm text-slate-500">
+            Daftarkan sekolah Anda untuk mulai pemantauan skrining siswa
+          </p>
+        </div>
+
+        {/* Form Card */}
+        <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm space-y-5">
+          <div className="border-b border-slate-100 pb-3">
+            <h1 className="text-lg font-semibold text-slate-800">Registrasi Kredensial</h1>
+            <p className="text-xs text-slate-400 mt-0.5">Semua data berikut wajib diisi lengkap</p>
+          </div>
+
+          {error && (
+            <div className="p-3 text-xs bg-rose-50 text-rose-600 rounded-xl border border-rose-100 font-medium">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Input 1: Nama Lengkap */}
+            <div>
+              <label htmlFor="fullname-input" className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">
+                Nama Lengkap
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+                  <User className="w-4 h-4 text-slate-400" />
+                </span>
+                <input
+                  id="fullname-input"
+                  type="text"
+                  required
+                  placeholder="Contoh: Ibu Sri Wahyuni, S.Pd."
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:border-slate-450 focus:ring-1 focus:ring-slate-350 transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* Input 2: Nama Sekolah */}
+            <div>
+              <label htmlFor="school-input" className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">
+                Nama Sekolah
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+                  <School className="w-4 h-4 text-slate-400" />
+                </span>
+                <input
+                  id="school-input"
+                  type="text"
+                  required
+                  placeholder="Contoh: SDN Menteng 01"
+                  value={schoolName}
+                  onChange={(e) => setSchoolName(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:border-slate-450 focus:ring-1 focus:ring-slate-350 transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* Input 3: Kota */}
+            <div>
+              <label htmlFor="city-input" className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">
+                Kota / Kabupaten
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+                  <MapPin className="w-4 h-4 text-slate-400" />
+                </span>
+                <input
+                  id="city-input"
+                  type="text"
+                  required
+                  placeholder="Contoh: Jakarta Pusat"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:border-slate-450 focus:ring-1 focus:ring-slate-350 transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* Input 4: Username */}
+            <div>
+              <label htmlFor="username-input" className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">
+                Username Baru
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+                  <UserPlus className="w-4 h-4 text-slate-400" />
+                </span>
+                <input
+                  id="username-input"
+                  type="text"
+                  required
+                  placeholder="Buat username unik"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:border-slate-450 focus:ring-1 focus:ring-slate-350 transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* Input 5: Password */}
+            <div>
+              <label htmlFor="password-input" className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">
+                Password Baru
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+                  <Lock className="w-4 h-4 text-slate-400" />
+                </span>
+                <input
+                  id="password-input"
+                  type="password"
+                  required
+                  placeholder="Minimal 4 karakter"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:border-slate-450 focus:ring-1 focus:ring-slate-350 transition-colors"
+                />
+              </div>
+            </div>
+
+            <button
+              id="register-submit-btn"
+              type="submit"
+              disabled={isSubmitting}
+              className="flex w-full items-center justify-center gap-2 mt-6 px-4 py-3 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-850 active:bg-slate-950 disabled:opacity-50 transition-colors cursor-pointer"
+            >
+              <span>{isSubmitting ? 'Memproses...' : 'Daftar & Masuk'}</span>
+              {!isSubmitting && <ArrowRight className="w-4 h-4" />}
+            </button>
+          </form>
+
+          {/* Direct to Login */}
+          <div className="text-center pt-2">
+            <span className="text-xs text-slate-500">Sudah memiliki akun? </span>
+            <Link 
+              id="goto-login-link"
+              href="/login" 
+              className="text-xs font-semibold text-slate-800 hover:underline"
+            >
+              Masuk Sekarang
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
