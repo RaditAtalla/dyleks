@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useStudentAuth } from './hooks/useStudentAuth';
+import { useRouter } from 'next/navigation';
 import { 
   User, 
   School, 
@@ -16,6 +17,7 @@ import {
 
 export default function Home() {
   const { student, teacher, loading, requireAuth } = useStudentAuth();
+  const router = useRouter();
 
   // Enforce auth check
   useEffect(() => {
@@ -92,8 +94,12 @@ export default function Home() {
     }
   ];
 
-  const handleGameClick = (gameName: string) => {
-    alert(gameName);
+  const handleGameClick = (gameId: string) => {
+    if (gameId === 'latihan-bertahap') {
+      router.push('/latihan-bertahap');
+    } else {
+      alert(`Permainan "${gameId}" belum tersedia.`);
+    }
   };
 
   return (
@@ -181,7 +187,7 @@ export default function Home() {
                 <button
                   id={`game-btn-${game.id}`}
                   key={game.id}
-                  onClick={() => handleGameClick(game.name)}
+                  onClick={() => handleGameClick(game.id)}
                   className={`flex flex-col text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer ${game.colorClass} shadow-xs hover:shadow-sm transform active:scale-97`}
                 >
                   <div className={`p-2 w-8 h-8 rounded-xl flex items-center justify-center mb-3 ${game.iconBg} border border-white`}>
