@@ -1,10 +1,13 @@
 import { Teacher } from '../types';
-import { isClient, TEACHERS_KEY } from './storage';
+import { SISWA_API_URL } from './storage';
 
-export const getTeacherById = (id: string): Teacher | null => {
-  if (!isClient()) return null;
-  const data = localStorage.getItem(TEACHERS_KEY);
-  if (!data) return null;
-  const allTeachers: Teacher[] = JSON.parse(data);
-  return allTeachers.find(t => t.id === id) || null;
+export const getTeacherById = async (id: string): Promise<Teacher | null> => {
+  try {
+    const response = await fetch(`${SISWA_API_URL}/api/teachers/${id}`);
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching teacher:", error);
+    return null;
+  }
 };

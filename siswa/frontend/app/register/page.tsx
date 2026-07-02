@@ -53,7 +53,7 @@ export default function RegisterPage() {
 
     setIsSubmitting(true);
     try {
-      const res = register(fullName.trim(), parsedAge, gender, grade.trim());
+      const res = await register(fullName.trim(), parsedAge, gender, grade.trim());
       if (!res.success) {
         setError(res.error || 'Gagal menyimpan profil.');
         setIsSubmitting(false);

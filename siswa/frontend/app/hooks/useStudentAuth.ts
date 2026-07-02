@@ -15,19 +15,20 @@ export function useStudentAuth() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const initAuth = () => {
+    const initAuth = async () => {
       if (typeof window === 'undefined') return;
 
       // 1. Check URL parameters first (e.g., student.dyleks?student_id=412)
       const params = new URLSearchParams(window.location.search);
       const studentIdParam = params.get('student_id');
+      const teacherIdParam = params.get('teacher_id');
       
       if (studentIdParam) {
-        const found = getStudentById(studentIdParam);
+        const found = await getStudentById(studentIdParam);
         if (found) {
           localStorage.setItem(CURRENT_STUDENT_KEY, JSON.stringify(found));
           setStudent(found);
-          const t = getTeacherById(found.teacherId);
+          const t = await getTeacherById(found.teacherId);
           setTeacher(t);
           setLoading(false);
           
@@ -41,6 +42,29 @@ export function useStudentAuth() {
             router.push('/');
           }
           return;
+        } else if (teacherIdParam) {
+          // Unregistered student case: mock student session using teacherIdParam
+          const t = await getTeacherById(teacherIdParam);
+          if (t) {
+            const newDraftStudent: Student = {
+              id: studentIdParam,
+              teacherId: teacherIdParam,
+              name: 'Siswa Baru',
+              class: '-',
+              currentLevel: 1,
+              riskScore: 0,
+              riskClass: 'low',
+              qrUrl: `http://localhost:3001?student_id=${studentIdParam}&teacher_id=${teacherIdParam}`
+            };
+            localStorage.setItem(CURRENT_STUDENT_KEY, JSON.stringify(newDraftStudent));
+            setStudent(newDraftStudent);
+            setTeacher(t);
+            setLoading(false);
+            
+            window.history.replaceState({}, document.title, window.location.pathname);
+            router.push('/register');
+            return;
+          }
         }
       }
 
@@ -48,16 +72,24 @@ export function useStudentAuth() {
       const stored = localStorage.getItem(CURRENT_STUDENT_KEY);
       if (stored) {
         const parsedStudent: Student = JSON.parse(stored);
-        // Sync student data with current data in localStorage
-        const currentData = getStudentById(parsedStudent.id);
+        // Sync student data with current data in SQLite DB
+        const currentData = await getStudentById(parsedStudent.id);
         if (currentData) {
           localStorage.setItem(CURRENT_STUDENT_KEY, JSON.stringify(currentData));
           setStudent(currentData);
-          const t = getTeacherById(currentData.teacherId);
+          const t = await getTeacherById(currentData.teacherId);
           setTeacher(t);
         } else {
-          // Clear session if student not found (e.g., deleted by teacher)
-          localStorage.removeItem(CURRENT_STUDENT_KEY);
+          // If not found in DB, check if it was a draft student that is still registering
+          const isDraft = parsedStudent.name === 'Siswa Baru' || parsedStudent.class === '-';
+          if (isDraft) {
+            setStudent(parsedStudent);
+            const t = await getTeacherById(parsedStudent.teacherId);
+            setTeacher(t);
+          } else {
+            // Clear session if student was fully registered but now not found (deleted)
+            localStorage.removeItem(CURRENT_STUDENT_KEY);
+          }
         }
       }
       setLoading(false);
@@ -66,15 +98,15 @@ export function useStudentAuth() {
     initAuth();
   }, [router]);
 
-  const loginWithId = useCallback((id: string): { success: boolean; error?: string } => {
-    const found = getStudentById(id);
+  const loginWithId = useCallback(async (id: string): Promise<{ success: boolean; error?: string }> => {
+    const found = await getStudentById(id);
     if (!found) {
       return { success: false, error: 'ID Siswa tidak ditemukan. Pastikan Anda memindai QR Code yang benar.' };
     }
 
     localStorage.setItem(CURRENT_STUDENT_KEY, JSON.stringify(found));
     setStudent(found);
-    const t = getTeacherById(found.teacherId);
+    const t = await getTeacherById(found.teacherId);
     setTeacher(t);
 
     if (found.name === 'Siswa Baru' || found.class === '-') {
@@ -86,12 +118,12 @@ export function useStudentAuth() {
     return { success: true };
   }, [router]);
 
-  const register = useCallback((
+  const register = useCallback(async (
     name: string,
     age: number,
     gender: 'boy' | 'girl',
     grade: string
-  ): { success: boolean; error?: string } => {
+  ): Promise<{ success: boolean; error?: string }> => {
     if (!student) {
       return { success: false, error: 'Sesi siswa tidak valid.' };
     }
@@ -100,7 +132,7 @@ export function useStudentAuth() {
       return { success: false, error: 'Semua data pendaftaran wajib diisi.' };
     }
 
-    const updated = updateStudentProfile(student.id, name, age, gender, grade);
+    const updated = await updateStudentProfile(student.id, name, age, gender, grade, student.teacherId);
     if (updated) {
       localStorage.setItem(CURRENT_STUDENT_KEY, JSON.stringify(updated));
       setStudent(updated);
@@ -109,7 +141,7 @@ export function useStudentAuth() {
     }
 
     return { success: false, error: 'Gagal memperbarui profil siswa.' };
-  }, [student, router]);
+  }, [student]);
 
   const logout = useCallback(() => {
     localStorage.removeItem(CURRENT_STUDENT_KEY);
