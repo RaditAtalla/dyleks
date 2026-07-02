@@ -35,7 +35,7 @@ export const generateRegistrationDetails = async (teacherId: string): Promise<{ 
     attempts++;
   }
 
-  const qrUrl = `http://localhost:3001?student_id=${studentId}&teacher_id=${teacherId}`;
+  const qrUrl = `http://localhost:8001?student_id=${studentId}&teacher_id=${teacherId}`;
   return { studentId, qrUrl };
 };
 

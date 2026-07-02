@@ -54,7 +54,7 @@ export function useStudentAuth() {
               currentLevel: 1,
               riskScore: 0,
               riskClass: 'low',
-              qrUrl: `http://localhost:3001?student_id=${studentIdParam}&teacher_id=${teacherIdParam}`
+              qrUrl: `http://localhost:8001?student_id=${studentIdParam}&teacher_id=${teacherIdParam}`
             };
             localStorage.setItem(CURRENT_STUDENT_KEY, JSON.stringify(newDraftStudent));
             setStudent(newDraftStudent);

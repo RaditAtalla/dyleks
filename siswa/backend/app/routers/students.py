@@ -22,7 +22,7 @@ def update_student(student_id: str, update_data: StudentUpdate, db: Session = De
         if not update_data.teacherId:
             raise HTTPException(status_code=400, detail="Teacher ID is required for registration.")
         
-        qr_url = f"http://localhost:3001?student_id={student_id}"
+        qr_url = f"http://localhost:8001?student_id={student_id}"
         
         student = Student(
             id=student_id,

@@ -40,7 +40,7 @@ To maintain code clarity and avoid code redundancy, follow this strict architect
 - Real-time updates on the teacher dashboard are driven by **Server-Sent Events (SSE)**.
 - **Decoupled Architecture**: To keep modules independent, the student and teacher backend processes do not communicate directly. Instead, they share the SQLite database file (`shared-db/dyleks.db`).
 - **File Watcher (`DBWatcher`)**:
-  - The teacher's backend running on port 3006 runs an asynchronous background task (`DBWatcher` in **[app/utils/notifier.py](file:///d:/dev/dyleks-new/guru/backend/app/utils/notifier.py)**) that monitors modification times (`mtime`) of the database file and its WAL file (`dyleks.db-wal`) every 1.0 second.
+  - The teacher's backend running on port 8004 runs an asynchronous background task (`DBWatcher` in **[app/utils/notifier.py](file:///d:/dev/dyleks-new/guru/backend/app/utils/notifier.py)**) that monitors modification times (`mtime`) of the database file and its WAL file (`dyleks.db-wal`) every 1.0 second.
   - When database writes occur from either backend, the watcher automatically broadcasts a change signal to all active clients subscribed via **[app/routers/events.py](file:///d:/dev/dyleks-new/guru/backend/app/routers/events.py)** (`/api/events/subscribe`).
 - **Frontend Live Listener**: The frontend dashboard hook **[useStudents.ts](file:///d:/dev/dyleks-new/guru/frontend/app/hooks/useStudents.ts)** listens to this SSE stream and automatically invokes `refreshData()` to retrieve fresh database records and re-render the dashboard UI seamlessly.
 
@@ -62,7 +62,7 @@ Always implement the following layout and styling rules in portal designs:
 ### 3. QR Code Operations & Login Flow
 - Remove download buttons ("Unduh QR") from QR Code modals.
 - Prioritize clipboard copying ("Salin Tautan") and displaying the link text alongside a canvas-drawn QR code.
-- Student login QR code URL target structure: `http://localhost:3001?student_id=XXX` (for registered students) or `http://localhost:3001?student_id=XXX&teacher_id=YYY` (for new registrations).
+- Student login QR code URL target structure: `http://localhost:8001?student_id=XXX` (for registered students) or `http://localhost:8001?student_id=XXX&teacher_id=YYY` (for new registrations).
 - **Siswa Login Flow**: If no `student_id` query param is present on loading, show instructions explaining how to scan the QR code from the teacher.
 
 ### 4. Student-Side Registration Flow (No Temporary Students)
@@ -70,7 +70,7 @@ Always implement the following layout and styling rules in portal designs:
 - **ID Uniqueness Verification**:
   - The student ID is generated as a random 3-digit number.
   - The Guru frontend validates its availability by calling `GET /api/students/{student_id}` on the backend. It loops and verifies uniqueness up to 10 times to prevent conflicts.
-- **Registration URL Structure**: The target structure is `http://localhost:3001?student_id=XXX&teacher_id=YYY`. The `teacher_id` parameter is required in the URL because the student record does not yet exist in the database.
+- **Registration URL Structure**: The target structure is `http://localhost:8001?student_id=XXX&teacher_id=YYY`. The `teacher_id` parameter is required in the URL because the student record does not yet exist in the database.
 - **Client-Side Draft Session**:
   - When the student loads the QR code URL, if `student_id` is not in the database but `teacher_id` is in the query params, a client-side mock student draft session (default name `"Siswa Baru"`, class `"-"`) is established in `localStorage` (`CURRENT_STUDENT_KEY`).
   - To prevent registration page reloads from logging the student out, this client-side draft session is persisted in local storage instead of discarding it because it's not found in the DB.
