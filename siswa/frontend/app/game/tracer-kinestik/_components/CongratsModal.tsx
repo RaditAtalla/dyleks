@@ -27,7 +27,7 @@ export default function CongratsModal({
           <span className="absolute -bottom-2 -right-4 text-2xl animate-bounce" style={{ animationDelay: '0.2s' }}>🌟</span>
 
           <div className="p-4 bg-amber-50 text-amber-500 rounded-full border border-amber-100 shadow-inner flex items-center justify-center">
-            <Trophy className="w-12 h-12 stroke-[2]" />
+            <Trophy className="w-12 h-12 stroke-2" />
           </div>
         </div>
 
