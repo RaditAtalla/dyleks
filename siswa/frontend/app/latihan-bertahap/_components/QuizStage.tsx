@@ -2,6 +2,8 @@
 
 import { X, Volume2, ArrowRight, CheckCircle, XCircle } from 'lucide-react';
 import { QuizStageProps } from '../../types';
+import ChoiceQuiz from './ChoiceQuiz';
+import HandwritingQuiz from './HandwritingQuiz';
 
 export default function QuizStage({
   currentIndex,
@@ -14,7 +16,9 @@ export default function QuizStage({
   onNext,
   onQuit,
   isSpeaking,
-  onPlaySound
+  onPlaySound,
+  onHandwritingResult,
+  ocrResult
 }: QuizStageProps) {
   return (
     <div className="flex-1 flex flex-col justify-between py-4">
@@ -61,71 +65,50 @@ export default function QuizStage({
               <span className="absolute -inset-1 rounded-full border-2 border-indigo-400 animate-ping opacity-25 pointer-events-none" />
             )}
           </button>
-          <span className="text-xs font-semibold text-slate-450 text-slate-400 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-slate-455 text-slate-400 uppercase tracking-wider">
             {isSpeaking ? 'Mendengarkan...' : 'Ketuk untuk Mendengar'}
           </span>
         </div>
 
-        {/* Letter Options Grid (All 5 Vowels: A, I, U, E, O) */}
-        <div className="space-y-3 w-full">
-          <p className="text-[10px] font-extrabold text-slate-400 text-center uppercase tracking-wider">
-            Pilih Huruf Vokal yang Sesuai
-          </p>
-          
-          <div className="grid grid-cols-5 gap-2 w-full">
-            {question.options.map((option) => {
-              const isSelected = selectedOption === option;
-              const isCorrectOption = option === question.target;
+        {/* Dynamic Quiz Question Type Switch */}
+        {question.type === 'choice' ? (
+          <>
+            <ChoiceQuiz
+              question={question}
+              selectedOption={selectedOption}
+              onSelectOption={onSelectOption}
+              isSubmitted={isSubmitted}
+            />
 
-              // Compute dynamic styling based on stage & selection
-              let btnStyle = "bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100";
-              if (isSubmitted) {
-                if (isCorrectOption) {
-                  btnStyle = "bg-emerald-50 border-2 border-emerald-500 text-emerald-700 shadow-xs font-black scale-102";
-                } else if (isSelected) {
-                  btnStyle = "bg-rose-50 border-2 border-rose-500 text-rose-700 shadow-xs font-black";
-                } else {
-                  btnStyle = "bg-slate-50 border border-slate-100 text-slate-350 opacity-50 pointer-events-none";
-                }
-              } else if (isSelected) {
-                btnStyle = "bg-indigo-50 border-2 border-indigo-500 text-indigo-700 font-black shadow-xs scale-103";
-              }
-
-              return (
-                <button
-                  key={option}
-                  disabled={isSubmitted}
-                  onClick={() => onSelectOption(option)}
-                  className={`aspect-square flex items-center justify-center text-2xl font-black rounded-2xl transition-all duration-150 shadow-2xs ${
-                    !isSubmitted ? 'cursor-pointer active:scale-93' : 'pointer-events-none'
-                  } ${btnStyle}`}
-                >
-                  {option}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Immediate Feedback Text */}
-        {isSubmitted && (
-          <div className="w-full flex items-center justify-center gap-2 py-1.5 px-4 rounded-xl text-xs font-bold transition-all duration-200">
-            {selectedOption === question.target ? (
-              <span className="text-emerald-600 flex items-center gap-1.5">
-                <CheckCircle className="w-4 h-4 fill-emerald-50 text-emerald-650 shrink-0" /> Jawaban Benar! Hebat!
-              </span>
-            ) : (
-              <span className="text-rose-600 flex items-center gap-1.5">
-                <XCircle className="w-4 h-4 fill-rose-50 text-rose-650 shrink-0" /> Jawaban kurang tepat, itu huruf "{question.target}"
-              </span>
+            {/* Immediate Feedback Text (Choice only) */}
+            {isSubmitted && (
+              <div className="w-full flex items-center justify-center gap-2 py-1.5 px-4 rounded-xl text-xs font-bold transition-all duration-200">
+                {selectedOption === question.target ? (
+                  <span className="text-emerald-600 flex items-center gap-1.5">
+                    <CheckCircle className="w-4 h-4 fill-emerald-50 text-emerald-600 shrink-0" /> Jawaban Benar! Hebat!
+                  </span>
+                ) : (
+                  <span className="text-rose-600 flex items-center gap-1.5">
+                    <XCircle className="w-4 h-4 fill-rose-50 text-rose-650 shrink-0" /> Jawaban kurang tepat, itu huruf "{question.target}"
+                  </span>
+                )}
+              </div>
             )}
-          </div>
+          </>
+        ) : (
+          <HandwritingQuiz
+            question={question}
+            onHandwritingResult={onHandwritingResult}
+            isSubmitted={isSubmitted}
+            ocrResult={ocrResult}
+          />
         )}
       </div>
 
       {/* Action buttons */}
       <div className="pt-2">
-        {!isSubmitted ? (
+        {/* Submit button only for choice questions */}
+        {question.type === 'choice' && !isSubmitted && (
           <button
             disabled={!selectedOption}
             onClick={onSubmitAnswer}
@@ -137,7 +120,10 @@ export default function QuizStage({
           >
             Kirim Jawaban
           </button>
-        ) : (
+        )}
+
+        {/* Next button shown for both questions after submission */}
+        {isSubmitted && (
           <button
             onClick={onNext}
             className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-sm transition-all duration-200 shadow-md shadow-indigo-100/50 flex items-center justify-center gap-1.5 cursor-pointer transform active:scale-97"

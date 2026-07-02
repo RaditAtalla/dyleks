@@ -4,9 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStudentAuth } from '../hooks/useStudentAuth';
 import { QuizQuestion } from '../types';
-import LandingStage from './components/LandingStage';
-import QuizStage from './components/QuizStage';
-import FinishStage from './components/FinishStage';
+import LandingStage from './_components/LandingStage';
+import QuizStage from './_components/QuizStage';
+import FinishStage from './_components/FinishStage';
 
 const VOWELS = ['A', 'I', 'U', 'E', 'O'];
 
@@ -28,6 +28,7 @@ export default function LatihanBertahap() {
   const [correctCount, setCorrectCount] = useState(0);
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [ocrResult, setOcrResult] = useState<{ detected: string; accuracy: number } | null>(null);
 
   // Initialize/Reset Game
   const startNewGame = useCallback(() => {
@@ -36,7 +37,8 @@ export default function LatihanBertahap() {
       const randomTarget = VOWELS[Math.floor(Math.random() * VOWELS.length)];
       newQuestions.push({
         target: randomTarget,
-        options: [...VOWELS]
+        options: [...VOWELS],
+        type: i < 8 ? 'choice' : 'handwriting' // Questions 9 and 10 are handwriting recognition
       });
     }
     setQuestions(newQuestions);
@@ -45,6 +47,7 @@ export default function LatihanBertahap() {
     setIsSubmitted(false);
     setCorrectCount(0);
     setIncorrectCount(0);
+    setOcrResult(null);
     setStage('quiz');
   }, []);
 
@@ -52,7 +55,7 @@ export default function LatihanBertahap() {
   const playLetterSound = useCallback((letter: string) => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      
+
       const utterance = new SpeechSynthesisUtterance(letter);
       utterance.lang = 'id-ID';
       utterance.rate = 0.75;
@@ -84,7 +87,7 @@ export default function LatihanBertahap() {
     }
   };
 
-  // Submit Answer
+  // Submit Answer (Choice question only)
   const handleSubmitAnswer = () => {
     if (!selectedOption || isSubmitted) return;
 
@@ -100,11 +103,26 @@ export default function LatihanBertahap() {
     setIsSubmitted(true);
   };
 
+  // Handwriting API result callback
+  const handleHandwritingResult = useCallback((detected: string, accuracy: number, isCorrect: boolean) => {
+    setSelectedOption(detected);
+    setOcrResult({ detected, accuracy });
+
+    if (isCorrect) {
+      setCorrectCount(prev => prev + 1);
+    } else {
+      setIncorrectCount(prev => prev + 1);
+    }
+
+    setIsSubmitted(true);
+  }, []);
+
   // Go to next question or finish page
   const handleNext = () => {
     if (currentIndex < 9) {
       setCurrentIndex(prev => prev + 1);
       setSelectedOption(null);
+      setOcrResult(null);
       setIsSubmitted(false);
     } else {
       setStage('finish');
@@ -130,7 +148,7 @@ export default function LatihanBertahap() {
 
       {/* Mobile container */}
       <main className="max-w-md w-full mx-auto px-4 py-6 flex flex-col justify-between min-h-screen space-y-5">
-        
+
         {/* Game Stage: Landing */}
         {stage === 'landing' && (
           <LandingStage
@@ -154,6 +172,8 @@ export default function LatihanBertahap() {
             onQuit={handleQuit}
             isSpeaking={isSpeaking}
             onPlaySound={() => playLetterSound(questions[currentIndex].target)}
+            onHandwritingResult={handleHandwritingResult}
+            ocrResult={ocrResult}
           />
         )}
 

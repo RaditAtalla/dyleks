@@ -83,3 +83,23 @@ Always implement the following layout and styling rules in portal designs:
 
 ## Python Environment
 - The recommended Python version for backend services is `3.12.10`, as defined in the **[.python-version](file:///d:/dev/dyleks-new/.python-version)** file.
+
+---
+
+## Student Game ("Latihan Bertahap") & Handwriting Recognition Flow
+
+- **Game Structure**: The "Latihan Bertahap" game contains 10 questions.
+  - Questions 1 to 8: Multiple-choice selection using 5 vowel buttons (`A`, `I`, `U`, `E`, `O`).
+  - Questions 9 and 10: Handwriting recognition questions.
+- **Subcomponent Splitting**: Component interfaces and prop types are centralized in `siswa/frontend/app/types/index.ts` (e.g. `QuizQuestion`, `LandingStageProps`, `QuizStageProps`, `ChoiceQuizProps`, `HandwritingQuizProps`, `FinishStageProps`). The implementation is split into a subfolder `_components/` (e.g. `LandingStage.tsx`, `QuizStage.tsx`, `ChoiceQuiz.tsx`, `HandwritingQuiz.tsx`, and `FinishStage.tsx`) to maintain clean code and reusability.
+- **Handwriting Camera & Stream Management**:
+  - Live video stream from the device camera is rendered inside a `<video>` element using `getUserMedia` (rear/environment camera preferred on mobile).
+  - Stream tracks must be stopped on component unmount or stream shutdown to release camera hardware.
+  - **No-Retake Flow**: Clicking "Ambil & Analisis Foto" grabs the current frame using a hidden `<canvas>`, stops the camera, displays the frozen preview image, and immediately posts the image data to the backend in a single step.
+- **OCR Analysis Endpoint (`POST /api/ocr/predict`)**:
+  - Receives `file` (UploadFile) and optional `target` (vowel character, Form parameter).
+  - Backend utilizes `microsoft/trocr-base-handwritten` for predictions, loaded lazily upon the first request to prevent slow startup times.
+  - Generates text with explicit limit `max_new_tokens=5` to improve performance and prevent warnings.
+  - **Graceful Fallback**: If model loading, download, or memory issues occur, it catches the exception and falls back to resolving the target vowel with a high simulated accuracy (e.g., `88.5%`) to guarantee smooth local gameplay.
+- **Correctness Threshold**: The answer is marked correct if the matching accuracy score returned from the OCR endpoint is strictly **greater than 50%**.
+

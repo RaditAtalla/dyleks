@@ -38,6 +38,7 @@ export interface Game {
 export interface QuizQuestion {
   target: string;
   options: string[];
+  type: 'choice' | 'handwriting';
 }
 
 export interface LandingStageProps {
@@ -58,6 +59,22 @@ export interface QuizStageProps {
   onQuit: () => void;
   isSpeaking: boolean;
   onPlaySound: () => void;
+  onHandwritingResult: (detected: string, accuracy: number, isCorrect: boolean) => void;
+  ocrResult: { detected: string; accuracy: number } | null;
+}
+
+export interface ChoiceQuizProps {
+  question: QuizQuestion;
+  selectedOption: string | null;
+  onSelectOption: (option: string) => void;
+  isSubmitted: boolean;
+}
+
+export interface HandwritingQuizProps {
+  question: QuizQuestion;
+  onHandwritingResult: (detected: string, accuracy: number, isCorrect: boolean) => void;
+  isSubmitted: boolean;
+  ocrResult: { detected: string; accuracy: number } | null;
 }
 
 export interface FinishStageProps {
