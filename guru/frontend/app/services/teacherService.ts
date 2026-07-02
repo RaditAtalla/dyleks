@@ -1,15 +1,61 @@
 import { Teacher } from '../types';
-import { isClient, TEACHERS_KEY } from './storage';
+import { GURU_API_URL } from './storage';
 
-export const getTeachers = (): Teacher[] => {
-  if (!isClient()) return [];
-  const data = localStorage.getItem(TEACHERS_KEY);
-  return data ? JSON.parse(data) : [];
+export const getTeacherById = async (id: string): Promise<Teacher | null> => {
+  try {
+    const response = await fetch(`${GURU_API_URL}/api/teachers/${id}`);
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching teacher:", error);
+    return null;
+  }
 };
 
-export const saveTeacher = (teacher: Teacher) => {
-  if (!isClient()) return;
-  const teachers = getTeachers();
-  teachers.push(teacher);
-  localStorage.setItem(TEACHERS_KEY, JSON.stringify(teachers));
+export const loginTeacher = async (username: string, password: string): Promise<{ success: boolean; data?: Teacher; error?: string }> => {
+  try {
+    const response = await fetch(`${GURU_API_URL}/api/teachers/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+    });
+    
+    const resData = await response.json();
+    if (!response.ok) {
+      return { success: false, error: resData.detail || 'Login gagal.' };
+    }
+    return { success: true, data: resData };
+  } catch (error) {
+    console.error("Error logging in:", error);
+    return { success: false, error: 'Tidak dapat terhubung ke server.' };
+  }
+};
+
+export const registerTeacher = async (
+  fullName: string,
+  schoolName: string,
+  city: string,
+  username: string,
+  password: string
+): Promise<{ success: boolean; data?: Teacher; error?: string }> => {
+  try {
+    const response = await fetch(`${GURU_API_URL}/api/teachers/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ fullName, schoolName, city, username, password }),
+    });
+    
+    const resData = await response.json();
+    if (!response.ok) {
+      return { success: false, error: resData.detail || 'Registrasi gagal.' };
+    }
+    return { success: true, data: resData };
+  } catch (error) {
+    console.error("Error registering teacher:", error);
+    return { success: false, error: 'Tidak dapat terhubung ke server.' };
+  }
 };

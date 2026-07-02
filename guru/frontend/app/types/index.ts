@@ -30,8 +30,8 @@ export interface ActivityLog {
 export interface AddStudentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  student: Student | null;
-  onCopy?: () => void;
+  studentId: string;
+  qrUrl: string;
 }
 
 export interface StudentTableProps {

@@ -5,15 +5,15 @@ import QRCode from 'qrcode';
 import { X, Copy, Check } from 'lucide-react';
 import { AddStudentModalProps, Student } from '../types';
 
-export default function AddStudentModal({ isOpen, onClose, student, onCopy }: AddStudentModalProps) {
+export default function AddStudentModal({ isOpen, onClose, studentId, qrUrl }: AddStudentModalProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (isOpen && canvasRef.current && student?.qrUrl) {
+    if (isOpen && canvasRef.current && qrUrl) {
       QRCode.toCanvas(
         canvasRef.current,
-        student.qrUrl,
+        qrUrl,
         {
           width: 200,
           margin: 1,
@@ -27,17 +27,14 @@ export default function AddStudentModal({ isOpen, onClose, student, onCopy }: Ad
         }
       );
     }
-  }, [isOpen, student]);
+  }, [isOpen, qrUrl]);
 
-  if (!isOpen || !student) return null;
+  if (!isOpen || !studentId) return null;
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(student.qrUrl);
+      await navigator.clipboard.writeText(qrUrl);
       setCopied(true);
-      if (onCopy) {
-        onCopy();
-      }
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Gagal menyalin tautan:', err);
@@ -52,7 +49,7 @@ export default function AddStudentModal({ isOpen, onClose, student, onCopy }: Ad
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <div>
             <h3 className="text-lg font-semibold text-slate-850">Siswa Baru Terdaftar</h3>
-            <p className="text-xs text-slate-500">ID Sementara: {student.id}</p>
+            <p className="text-xs text-slate-500">ID Sementara: {studentId}</p>
           </div>
           <button
             id="close-add-student-qr-modal"
@@ -72,7 +69,7 @@ export default function AddStudentModal({ isOpen, onClose, student, onCopy }: Ad
           <div className="w-full text-center space-y-3">
             <div className="bg-white border border-slate-100 px-3 py-1.5 rounded-lg inline-block max-w-full">
               <span className="text-xs font-mono text-slate-500 truncate block">
-                {student.qrUrl}
+                {qrUrl}
               </span>
             </div>
 

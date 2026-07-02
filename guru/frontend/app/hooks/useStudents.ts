@@ -2,18 +2,18 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Student, ActivityLog } from '../types';
-import { getStudents, createTemporaryStudent, commitStudent, deleteStudent } from '../services/studentService';
-import { getLogs, addActivityLog } from '../services/logService';
+import { getStudents, deleteStudent } from '../services/studentService';
+import { getLogs } from '../services/logService';
 
 export function useStudents(teacherId: string | undefined) {
   const [students, setStudents] = useState<Student[]>([]);
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [stats, setStats] = useState({ total: 0, high: 0, medium: 0, low: 0 });
 
-  const refreshData = useCallback(() => {
+  const refreshData = useCallback(async () => {
     if (!teacherId) return;
-    const studentList = getStudents(teacherId);
-    const logList = getLogs(teacherId);
+    const studentList = await getStudents(teacherId);
+    const logList = await getLogs(teacherId);
     
     setStudents(studentList);
     setLogs(logList);
@@ -33,30 +33,16 @@ export function useStudents(teacherId: string | undefined) {
     }
   }, [teacherId, refreshData]);
 
-  const generateTempStudent = () => {
-    if (!teacherId) return null;
-    return createTemporaryStudent(teacherId);
-  };
-
-  const removeStudent = (studentId: string) => {
+  const removeStudent = async (studentId: string) => {
     if (!teacherId) return;
-    deleteStudent(teacherId, studentId);
-    refreshData();
+    await deleteStudent(teacherId, studentId);
+    await refreshData();
   };
-
-  const commitNewStudent = useCallback((student: Student) => {
-    if (!teacherId) return;
-    commitStudent(student);
-    addActivityLog(teacherId, `Siswa Baru (ID: ${student.id})`, 'terdaftar sebagai siswa baru');
-    refreshData();
-  }, [teacherId, refreshData]);
 
   return {
     students,
     logs,
     stats,
-    generateTempStudent,
-    commitNewStudent,
     removeStudent,
     refreshData
   };

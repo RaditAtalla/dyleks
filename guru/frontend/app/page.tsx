@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useStudents } from './hooks/useStudents';
 import { Student } from './types';
+import { generateRegistrationDetails } from './services/studentService';
 
 // Components
 import StudentTable from './components/StudentTable';
@@ -24,12 +25,14 @@ import {
 
 export default function DashboardPage() {
   const { teacher, loading, logout, requireAuth } = useAuth();
-  const { students, logs, stats, generateTempStudent, commitNewStudent, removeStudent } = useStudents(teacher?.id);
+  const { students, logs, stats, removeStudent } = useStudents(teacher?.id);
 
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [generatedStudentId, setGeneratedStudentId] = useState<string>('');
+  const [generatedQrUrl, setGeneratedQrUrl] = useState<string>('');
 
   // Authenticate user
   useEffect(() => {
@@ -53,11 +56,12 @@ export default function DashboardPage() {
     setIsQRModalOpen(true);
   };
 
-  const handleAddStudentSubmit = () => {
-    const newStudent = generateTempStudent();
-    if (newStudent) {
-      // Open the success AddStudentModal showing the generated QR code & URL
-      setSelectedStudent(newStudent);
+  const handleAddStudentSubmit = async () => {
+    if (!teacher) return;
+    const details = await generateRegistrationDetails(teacher.id);
+    if (details) {
+      setGeneratedStudentId(details.studentId);
+      setGeneratedQrUrl(details.qrUrl);
       setIsAddModalOpen(true);
     }
   };
@@ -175,14 +179,11 @@ export default function DashboardPage() {
         isOpen={isAddModalOpen} 
         onClose={() => {
           setIsAddModalOpen(false);
-          setSelectedStudent(null);
+          setGeneratedStudentId('');
+          setGeneratedQrUrl('');
         }} 
-        student={selectedStudent} 
-        onCopy={() => {
-          if (selectedStudent) {
-            commitNewStudent(selectedStudent);
-          }
-        }}
+        studentId={generatedStudentId}
+        qrUrl={generatedQrUrl}
       />
 
       {selectedStudent && (

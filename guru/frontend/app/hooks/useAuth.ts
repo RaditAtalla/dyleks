@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Teacher } from '../types';
-import { getTeachers, saveTeacher } from '../services/teacherService';
+import { loginTeacher, registerTeacher } from '../services/teacherService';
 
 export function useAuth() {
   const [currentTeacher, setCurrentTeacher] = useState<Teacher | null>(null);
@@ -19,21 +19,16 @@ export function useAuth() {
   }, []);
 
   const login = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    // Basic validation
     if (!username || !password) {
       return { success: false, error: 'Username dan Password harus diisi.' };
     }
 
-    const teachers = getTeachers();
-    const found = teachers.find(t => t.username.toLowerCase() === username.toLowerCase());
-    
-    // In a real application, password hashing would be used. For mockup, we accept password length >= 4
-    if (!found) {
-      return { success: false, error: 'Username tidak ditemukan.' };
+    const res = await loginTeacher(username, password);
+    if (!res.success || !res.data) {
+      return { success: false, error: res.error || 'Username atau password salah.' };
     }
 
-    // Standard static password check or simply letting password pass for mockup
-    // Let's assume the mock registry password is correct or just mock successful verify
+    const found = res.data;
     localStorage.setItem('dyleks_current_teacher', JSON.stringify(found));
     setCurrentTeacher(found);
     
@@ -56,23 +51,12 @@ export function useAuth() {
       return { success: false, error: 'Password minimal 4 karakter.' };
     }
 
-    const teachers = getTeachers();
-    const exists = teachers.some(t => t.username.toLowerCase() === username.toLowerCase());
-    if (exists) {
-      return { success: false, error: 'Username sudah digunakan oleh guru lain.' };
+    const res = await registerTeacher(fullName, schoolName, city, username, password);
+    if (!res.success || !res.data) {
+      return { success: false, error: res.error || 'Registrasi gagal.' };
     }
 
-    const newTeacher: Teacher = {
-      id: Math.random().toString(36).substr(2, 9),
-      fullName,
-      schoolName,
-      city,
-      username
-    };
-
-    saveTeacher(newTeacher);
-    
-    // Set active login session right away or redirect to login
+    const newTeacher = res.data;
     localStorage.setItem('dyleks_current_teacher', JSON.stringify(newTeacher));
     setCurrentTeacher(newTeacher);
     
