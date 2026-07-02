@@ -8,7 +8,8 @@ sys.path.append(os.path.join(ROOT_DIR, "shared-db"))
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import teachers, students, logs
+from app.routers import teachers, students, logs, events
+from app.utils.notifier import watcher
 
 app = FastAPI(title="DyLeks Guru Backend")
 
@@ -30,3 +31,13 @@ app.add_middleware(
 app.include_router(teachers.router)
 app.include_router(students.router)
 app.include_router(logs.router)
+app.include_router(events.router)
+
+@app.on_event("startup")
+async def startup_event():
+    await watcher.start()
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    await watcher.stop()
+

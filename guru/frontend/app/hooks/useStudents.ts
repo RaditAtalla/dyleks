@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Student, ActivityLog } from '../types';
 import { getStudents, deleteStudent } from '../services/studentService';
 import { getLogs } from '../services/logService';
+import { GURU_API_URL } from '../services/storage';
 
 export function useStudents(teacherId: string | undefined) {
   const [students, setStudents] = useState<Student[]>([]);
@@ -31,6 +32,26 @@ export function useStudents(teacherId: string | undefined) {
     if (teacherId) {
       refreshData();
     }
+  }, [teacherId, refreshData]);
+
+  // Subscribe to real-time database change events via SSE
+  useEffect(() => {
+    if (!teacherId) return;
+
+    const eventSource = new EventSource(`${GURU_API_URL}/api/events/subscribe?teacher_id=${teacherId}`);
+
+    eventSource.onmessage = (event) => {
+      console.log("Database change detected, refreshing dashboard data:", event.data);
+      refreshData();
+    };
+
+    eventSource.onerror = (error) => {
+      console.error("SSE connection error:", error);
+    };
+
+    return () => {
+      eventSource.close();
+    };
   }, [teacherId, refreshData]);
 
   const removeStudent = async (studentId: string) => {
