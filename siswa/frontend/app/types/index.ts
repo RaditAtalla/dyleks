@@ -84,3 +84,57 @@ export interface FinishStageProps {
   onFinish: () => void;
 }
 
+export interface TracerPoint {
+  x: number;
+  y: number;
+  hint: string;
+}
+
+export interface CanvasProps {
+  selectedLetter: 'b' | 'd' | 'p' | 'q';
+  points: TracerPoint[];
+  currentPointIndex: number;
+  setCurrentPointIndex: React.Dispatch<React.SetStateAction<number>>;
+  completedSegments: Array<{ x1: number; y1: number; x2: number; y2: number }>;
+  setCompletedSegments: React.Dispatch<
+    React.SetStateAction<Array<{ x1: number; y1: number; x2: number; y2: number }>>
+  >;
+  onComplete: () => void;
+}
+
+export interface CongratsModalProps {
+  isOpen: boolean;
+  letter: 'b' | 'd' | 'p' | 'q';
+  onRestart: () => void;
+  onClose: () => void;
+  onHome: () => void;
+}
+
+export interface MemoryCard {
+  id: string;
+  value: string;
+  isRevealed: boolean;
+  isMatched: boolean;
+}
+
+export interface LevelSelectStageProps {
+  onSelectLevel: (level: number) => void;
+  onBackToHome: () => void;
+}
+
+export interface GamePlayStageProps {
+  level: number;
+  levelName: string;
+  cards: MemoryCard[];
+  onCardClick: (cardId: string) => void;
+  onResetLevel: () => void;
+  onQuit: () => void;
+}
+
+export interface GameFinishStageProps {
+  level: number;
+  hasNextLevel: boolean;
+  onNextLevel: () => void;
+  onRestart: () => void;
+  onHome: () => void;
+}

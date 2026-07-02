@@ -96,7 +96,11 @@ export default function Home() {
 
   const handleGameClick = (gameId: string) => {
     if (gameId === 'latihan-bertahap') {
-      router.push('/latihan-bertahap');
+      router.push('/game/latihan-bertahap');
+    } else if (gameId === 'tracer-kinestik') {
+      router.push('/game/tracer-kinestik');
+    } else if (gameId === 'petualangan-huruf') {
+      router.push('/game/petualangan-huruf');
     } else {
       alert(`Permainan "${gameId}" belum tersedia.`);
     }

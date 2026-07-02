@@ -103,3 +103,36 @@ Always implement the following layout and styling rules in portal designs:
   - **Graceful Fallback**: If model loading, download, or memory issues occur, it catches the exception and falls back to resolving the target vowel with a high simulated accuracy (e.g., `88.5%`) to guarantee smooth local gameplay.
 - **Correctness Threshold**: The answer is marked correct if the matching accuracy score returned from the OCR endpoint is strictly **greater than 50%**.
 
+---
+
+## Student Game ("Petualangan Huruf") Card-Matching Flow
+
+- **Game Structure**: The "Petualangan Huruf" game is a card-matching (memory) game.
+  - Layout: 8 cards laid out in a 2x4 grid (2 rows by 4 columns).
+  - Cards Pool Initialization: The game picks 4 random unique items from the selected level's target pool, duplicates them to create 8 items, and shuffles them randomly before rendering.
+- **Progressive Levels**:
+  - **Level 1 (Vokal Tunggal)**: `['A', 'I', 'U', 'E', 'O']`
+  - **Level 2 (Suku Kata Tunggal)**: `['ba', 'ca', 'da', 'ma', 'sa', 'li', 'ku', 'to']`
+  - **Level 3 (Suku Kata Kompleks)**: `['ban', 'tup', 'sing', 'plat', 'tra', 'nyi', 'klor', 'trans']`
+  - **Level 4 (Digraf & Diftong)**: `['ng', 'ny', 'sy', 'kh', 'ai', 'au', 'oi', 'ua']`
+  - **Level 5 (Kata Dasar)**: `['main', 'baca', 'tulis', 'makan', 'lari', 'sapu', 'buka', 'beli']`
+- **Matching Rule & Board Lock**:
+  - If 2 selected cards match, they stay open.
+  - If they do not match, the board is temporarily locked (`isLocked = true`) to prevent additional clicks, and the cards flip back down after a short delay (500ms).
+- **Subcomponent Splitting**: Component interfaces and prop types (`MemoryCard`, `LevelSelectStageProps`, `GamePlayStageProps`, `GameFinishStageProps`) are centralized in `siswa/frontend/app/types/index.ts`. Implementation is modularized under `game/petualangan-huruf/_components/` (`LevelSelectStage.tsx`, `GamePlayStage.tsx`, `GameFinishStage.tsx`).
+
+---
+
+## Student Game ("Tracer Kinestik") Tracing Flow
+
+- **Game Structure**: The "Tracer Kinestik" game is a letter-tracing sandbox game.
+  - Vowels/Letters: Supports 4 commonly confused letters (`b`, `d`, `p`, `q`). `b` is selected by default.
+  - Drawing Area: SVG-based canvas (`300x300` viewBox) overlaying a dual-line dashed worksheet path template.
+- **Validation & Resuming Rules**:
+  - The student starts dragging from the current active starting point.
+  - If the cursor/finger moves within 30px of the next target coordinate point, the segment is marked as completed and the target index advances.
+  - Completed segments are snap-drawn as solid green lines. The student can lift their finger and resume tracing from the last reached checkpoint without losing overall progress.
+  - Live gestures are drawn in blue and cleared when the mouse/touch is released.
+  - When all coordinate points have been sequentially connected, a playful congratulations modal is displayed.
+- **Subcomponent Splitting**: Component interfaces and prop types (`TracerPoint`, `CanvasProps`, `CongratsModalProps`) are centralized in `siswa/frontend/app/types/index.ts`. Implementation is modularized under `game/tracer-kinestik/_components/` (`Canvas.tsx`, `CongratsModal.tsx`).
+
