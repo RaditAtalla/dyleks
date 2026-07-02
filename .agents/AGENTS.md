@@ -36,6 +36,14 @@ To maintain code clarity and avoid code redundancy, follow this strict architect
   - **[services/logService.ts](file:///d:/dev/dyleks-new/guru/frontend/app/services/logService.ts)** (Guru): Activity logs and audit trails.
 - UI components must remain presentational. Any data fetching or state changes must be delegated to custom hooks (e.g., `hooks/useAuth.ts`, `hooks/useStudents.ts`, and `hooks/useStudentAuth.ts`).
 
+### 3. Real-Time Synchronization (Decoupled File Watcher)
+- Real-time updates on the teacher dashboard are driven by **Server-Sent Events (SSE)**.
+- **Decoupled Architecture**: To keep modules independent, the student and teacher backend processes do not communicate directly. Instead, they share the SQLite database file (`shared-db/dyleks.db`).
+- **File Watcher (`DBWatcher`)**:
+  - The teacher's backend running on port 3006 runs an asynchronous background task (`DBWatcher` in **[app/utils/notifier.py](file:///d:/dev/dyleks-new/guru/backend/app/utils/notifier.py)**) that monitors modification times (`mtime`) of the database file and its WAL file (`dyleks.db-wal`) every 1.0 second.
+  - When database writes occur from either backend, the watcher automatically broadcasts a change signal to all active clients subscribed via **[app/routers/events.py](file:///d:/dev/dyleks-new/guru/backend/app/routers/events.py)** (`/api/events/subscribe`).
+- **Frontend Live Listener**: The frontend dashboard hook **[useStudents.ts](file:///d:/dev/dyleks-new/guru/frontend/app/hooks/useStudents.ts)** listens to this SSE stream and automatically invokes `refreshData()` to retrieve fresh database records and re-render the dashboard UI seamlessly.
+
 ---
 
 ## UI/UX Design Preferences
