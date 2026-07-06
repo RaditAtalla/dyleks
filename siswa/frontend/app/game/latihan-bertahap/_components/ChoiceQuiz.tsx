@@ -1,6 +1,6 @@
 'use client';
 
-import { ChoiceQuizProps } from '../../types';
+import { ChoiceQuizProps } from '../../../types';
 
 export default function ChoiceQuiz({
   question,
@@ -13,7 +13,7 @@ export default function ChoiceQuiz({
       <p className="text-[10px] font-extrabold text-slate-400 text-center uppercase tracking-wider">
         Pilih Huruf Vokal yang Sesuai
       </p>
-      
+
       <div className="grid grid-cols-5 gap-2 w-full">
         {question.options.map((option) => {
           const isSelected = selectedOption === option;
@@ -38,9 +38,8 @@ export default function ChoiceQuiz({
               key={option}
               disabled={isSubmitted}
               onClick={() => onSelectOption(option)}
-              className={`aspect-square flex items-center justify-center text-2xl font-black rounded-2xl transition-all duration-150 shadow-2xs ${
-                !isSubmitted ? 'cursor-pointer active:scale-93' : 'pointer-events-none'
-              } ${btnStyle}`}
+              className={`aspect-square flex items-center justify-center text-2xl font-black rounded-2xl transition-all duration-150 shadow-2xs ${!isSubmitted ? 'cursor-pointer active:scale-93' : 'pointer-events-none'
+                } ${btnStyle}`}
             >
               {option}
             </button>

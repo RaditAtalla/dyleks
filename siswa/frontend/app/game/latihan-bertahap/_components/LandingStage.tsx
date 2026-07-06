@@ -1,7 +1,7 @@
 'use client';
 
 import { X, Volume2, Play } from 'lucide-react';
-import { LandingStageProps } from '../../types';
+import { LandingStageProps } from '../../../types';
 
 export default function LandingStage({
   studentName,
@@ -13,7 +13,7 @@ export default function LandingStage({
       {/* Header with Exit */}
       <div className="flex justify-between items-center pb-2">
         <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Latihan Bertahap</span>
-        <button 
+        <button
           onClick={onBackToHome}
           className="p-2 hover:bg-slate-100 rounded-full transition-colors cursor-pointer text-slate-400 hover:text-slate-655"
           aria-label="Kembali ke Beranda"

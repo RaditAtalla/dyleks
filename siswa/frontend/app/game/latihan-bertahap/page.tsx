@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useStudentAuth } from '../hooks/useStudentAuth';
-import { QuizQuestion } from '../types';
+import { useStudentAuth } from '../../hooks/useStudentAuth';
+import { QuizQuestion } from '../../types';
 import LandingStage from './_components/LandingStage';
 import QuizStage from './_components/QuizStage';
 import FinishStage from './_components/FinishStage';

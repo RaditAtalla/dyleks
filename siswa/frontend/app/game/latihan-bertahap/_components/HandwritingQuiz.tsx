@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Camera, Loader2, CheckCircle, XCircle } from 'lucide-react';
-import { HandwritingQuizProps } from '../../types';
-import { SISWA_API_URL } from '../../services/storage';
+import { HandwritingQuizProps } from '../../../types';
+import { SISWA_API_URL } from '../../../services/storage';
 
 export default function HandwritingQuiz({
   question,
@@ -13,7 +13,7 @@ export default function HandwritingQuiz({
 }: HandwritingQuizProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  
+
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -39,14 +39,14 @@ export default function HandwritingQuiz({
       }
 
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { 
+        video: {
           facingMode: 'environment', // prefer back camera on phones
           width: { ideal: 640 },
           height: { ideal: 480 }
         },
         audio: false
       });
-      
+
       setStream(mediaStream);
       setIsCameraActive(true);
       if (videoRef.current) {
@@ -78,12 +78,12 @@ export default function HandwritingQuiz({
     const video = videoRef.current;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    
+
     if (!ctx) return;
 
     // Draw video frame to hidden canvas
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
+
     // Save preview base64 to show user
     const dataUrl = canvas.toDataURL('image/jpeg');
     setCapturedImage(dataUrl);
@@ -154,21 +154,21 @@ export default function HandwritingQuiz({
 
         {/* Display Live Video when camera active & not submitted */}
         {!isSubmitted && isCameraActive && (
-          <video 
-            ref={videoRef} 
-            autoPlay 
-            playsInline 
-            muted 
-            className="w-full max-h-[220px] object-cover" 
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className="w-full max-h-[220px] object-cover"
           />
         )}
 
         {/* Display Captured Image Preview when submitted */}
         {(isSubmitted || !isCameraActive) && capturedImage && (
-          <img 
-            src={capturedImage} 
-            alt="Handwriting capture preview" 
-            className="w-full max-h-[220px] object-cover" 
+          <img
+            src={capturedImage}
+            alt="Handwriting capture preview"
+            className="w-full max-h-[220px] object-cover"
           />
         )}
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { Trophy, RotateCcw } from 'lucide-react';
-import { FinishStageProps } from '../../types';
+import { FinishStageProps } from '../../../types';
 
 export default function FinishStage({
   correctCount,
@@ -25,8 +25,8 @@ export default function FinishStage({
         <div className="space-y-1">
           <h2 className="text-xl font-black text-slate-800">Latihan Selesai!</h2>
           <p className="text-xs text-slate-500 max-w-xs mx-auto">
-            {correctCount >= 8 
-              ? "Luar biasa! Kamu sangat hebat dalam mengenali suara huruf vokal!" 
+            {correctCount >= 8
+              ? "Luar biasa! Kamu sangat hebat dalam mengenali suara huruf vokal!"
               : "Bagus sekali! Teruskan latihanmu agar ingatanmu semakin kuat!"}
           </p>
         </div>
@@ -52,7 +52,7 @@ export default function FinishStage({
         >
           <RotateCcw className="w-4 h-4" /> Ulangi Latihan
         </button>
-        
+
         <button
           onClick={onFinish}
           className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-sm transition-all duration-200 shadow-md shadow-indigo-150 flex items-center justify-center gap-1.5 cursor-pointer transform active:scale-97"

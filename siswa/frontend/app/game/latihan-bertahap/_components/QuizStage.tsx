@@ -1,7 +1,7 @@
 'use client';
 
 import { X, Volume2, ArrowRight, CheckCircle, XCircle } from 'lucide-react';
-import { QuizStageProps } from '../../types';
+import { QuizStageProps } from '../../../types';
 import ChoiceQuiz from './ChoiceQuiz';
 import HandwritingQuiz from './HandwritingQuiz';
 
@@ -28,7 +28,7 @@ export default function QuizStage({
           <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">
             Soal {currentIndex + 1} dari {totalQuestions}
           </span>
-          <button 
+          <button
             onClick={onQuit}
             className="p-1.5 hover:bg-slate-100 rounded-full transition-colors cursor-pointer text-slate-400 hover:text-slate-655"
             aria-label="Keluar Game"
@@ -39,7 +39,7 @@ export default function QuizStage({
 
         {/* Progress Bar */}
         <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-150">
-          <div 
+          <div
             className="bg-indigo-500 h-full rounded-full transition-all duration-300 ease-out"
             style={{ width: `${((currentIndex) / totalQuestions) * 100}%` }}
           />
@@ -48,16 +48,15 @@ export default function QuizStage({
 
       {/* Quiz Content Card */}
       <div className="bg-white border border-slate-100 rounded-3xl p-6 py-8 space-y-8 shadow-xs flex flex-col items-center my-auto">
-        
+
         {/* Speaker Play Area */}
         <div className="flex flex-col items-center space-y-3">
           <button
             onClick={onPlaySound}
-            className={`p-6 rounded-full border transition-all duration-200 flex items-center justify-center cursor-pointer shadow-sm relative ${
-              isSpeaking 
-              ? 'bg-indigo-100 text-indigo-700 border-indigo-200 scale-105' 
-              : 'bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100 hover:scale-102 active:scale-95'
-            }`}
+            className={`p-6 rounded-full border transition-all duration-200 flex items-center justify-center cursor-pointer shadow-sm relative ${isSpeaking
+                ? 'bg-indigo-100 text-indigo-700 border-indigo-200 scale-105'
+                : 'bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100 hover:scale-102 active:scale-95'
+              }`}
             aria-label="Putar Suara Huruf"
           >
             <Volume2 className={`w-10 h-10 ${isSpeaking ? 'animate-bounce' : ''}`} />
@@ -112,11 +111,10 @@ export default function QuizStage({
           <button
             disabled={!selectedOption}
             onClick={onSubmitAnswer}
-            className={`w-full py-4 rounded-2xl font-bold text-sm transition-all duration-250 flex items-center justify-center gap-1.5 ${
-              selectedOption 
-              ? 'bg-slate-900 text-white hover:bg-slate-800 cursor-pointer transform active:scale-97' 
-              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-            }`}
+            className={`w-full py-4 rounded-2xl font-bold text-sm transition-all duration-250 flex items-center justify-center gap-1.5 ${selectedOption
+                ? 'bg-slate-900 text-white hover:bg-slate-800 cursor-pointer transform active:scale-97'
+                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+              }`}
           >
             Kirim Jawaban
           </button>
