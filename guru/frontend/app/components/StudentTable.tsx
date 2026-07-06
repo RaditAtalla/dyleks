@@ -6,7 +6,7 @@ import { QrCode, Trash2, Search, UserPlus } from 'lucide-react';
 
 
 
-export default function StudentTable({ students, onShowQR, onDelete, onAddStudent }: StudentTableProps) {
+export default function StudentTable({ students, onShowQR, onDelete, onAddStudent, onSelectStudent, selectedStudentId }: StudentTableProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredStudents = students.filter(student =>
@@ -91,7 +91,24 @@ export default function StudentTable({ students, onShowQR, onDelete, onAddStuden
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm text-slate-650">
               {filteredStudents.map((student) => (
-                <tr key={student.id} className="hover:bg-slate-50/50 transition-colors">
+                <tr 
+                  key={student.id} 
+                  onClick={(e) => {
+                    console.log("Row clicked for student:", student.name);
+                    const target = e.target as HTMLElement;
+                    if (target.closest('button')) {
+                      console.log("Click ignored because it was on a button");
+                      return;
+                    }
+                    console.log("Firing onSelectStudent with:", student);
+                    onSelectStudent?.(student);
+                  }}
+                  className={`transition-colors cursor-pointer border-l-2 ${
+                    selectedStudentId === student.id 
+                      ? 'bg-slate-50/90 border-slate-900' 
+                      : 'hover:bg-slate-50/50 border-transparent'
+                  }`}
+                >
                   <td className="px-6 py-4">
                     <div className="font-semibold text-slate-800">{student.name}</div>
                     <div className="text-[10px] text-slate-400 mt-0.5">ID: {student.id}</div>

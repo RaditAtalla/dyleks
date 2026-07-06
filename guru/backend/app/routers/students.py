@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List
+from pydantic import BaseModel
 import uuid
 import datetime
 
@@ -77,3 +78,51 @@ def delete_student(student_id: str, teacher_id: str = Query(...), db: Session = 
     db.commit()
     
     return {"message": "Siswa berhasil dihapus."}
+
+class StudyPlanUpdate(BaseModel):
+    studyPlan: str
+
+@router.put("/{student_id}/study-plan", response_model=StudentSchema)
+def update_study_plan(student_id: str, update_data: StudyPlanUpdate, db: Session = Depends(get_db)):
+    student = db.query(Student).filter(Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="Siswa tidak ditemukan.")
+    
+    student.study_plan = update_data.studyPlan
+    db.commit()
+    db.refresh(student)
+    return student
+
+@router.post("/{student_id}/study-plan/generate")
+def generate_study_plan(student_id: str, db: Session = Depends(get_db)):
+    student = db.query(Student).filter(Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="Siswa tidak ditemukan.")
+    
+    # Generate structured lesson plan based on level and risk
+    level = student.current_level or 1
+    risk_class = student.risk_class or "low"
+    risk_score = student.risk_score or 0
+    name = student.name
+    
+    plan = f"""# RENCANA BELAJAR ORTON-GILLINGHAM (AI-GENERATED)
+**Nama Siswa:** {name} (Level {level} | Risiko: {risk_class.upper()} - {risk_score}%)
+
+## 1. Fokus Pembelajaran (Metode Multisensori VAKT)
+* **Visual (Melihat):** Pengenalan bentuk huruf dengan flashcard berkode warna untuk membedakan huruf berpasangan (misal: merah untuk 'b', biru untuk 'd').
+* **Auditori (Mendengar):** Latihan segmentasi fonik. Guru melafalkan bunyi huruf dan siswa mengulangi serta menuliskan bunyinya.
+* **Kinestetik & Taktil (Gerak & Sentuh):** Tracing huruf pada media bertekstur (pasir/layar sentuh) sembari melafalkan suaranya secara keras.
+
+## 2. Rencana Sesi Latihan Harian (15-20 Menit)
+* **Menit 1-5:** Pemanasan bunyi huruf (Grapheme-Phoneme Card Drill).
+* **Menit 5-12:** Tracing visual dan tebak huruf kinestetik (tracer layar).
+* **Menit 12-18:** Latihan membaca suku kata terstruktur tingkat kesulitan Level {level}.
+* **Menit 18-20:** Dikte kata sederhana (dikte ejaan multisensori).
+
+## 3. Strategi Pengajaran Guru
+* Gunakan instruksi yang singkat, jelas, dan satu-satu.
+* Jangan terburu-buru menaikkan level sebelum siswa mencapai akurasi >80% di sesi saat ini.
+* Berikan pujian spesifik pada proses belajar anak, bukan hanya hasil akhir."""
+
+    return {"studyPlan": plan}
+

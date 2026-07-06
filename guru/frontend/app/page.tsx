@@ -11,6 +11,7 @@ import StudentTable from './components/StudentTable';
 import ActivityLogList from './components/ActivityLogList';
 import QRModal from './components/QRModal';
 import AddStudentModal from './components/AddStudentModal';
+import StudentDetailPanel from './components/StudentDetailPanel';
 
 // Icons
 import { 
@@ -25,7 +26,7 @@ import {
 
 export default function DashboardPage() {
   const { teacher, loading, logout, requireAuth } = useAuth();
-  const { students, logs, stats, removeStudent } = useStudents(teacher?.id);
+  const { students, logs, stats, removeStudent, refreshData } = useStudents(teacher?.id);
 
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -33,6 +34,17 @@ export default function DashboardPage() {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [generatedStudentId, setGeneratedStudentId] = useState<string>('');
   const [generatedQrUrl, setGeneratedQrUrl] = useState<string>('');
+  const [selectedDetailStudent, setSelectedDetailStudent] = useState<Student | null>(null);
+
+  // Keep selected detail student in sync with refreshed student list
+  useEffect(() => {
+    if (selectedDetailStudent) {
+      const current = students.find(s => s.id === selectedDetailStudent.id);
+      if (current && JSON.stringify(current) !== JSON.stringify(selectedDetailStudent)) {
+        setSelectedDetailStudent(current);
+      }
+    }
+  }, [students, selectedDetailStudent]);
 
   // Authenticate user
   useEffect(() => {
@@ -158,13 +170,35 @@ export default function DashboardPage() {
           {/* Student Activity Timeline Log */}
           <ActivityLogList logs={logs} />
 
-          {/* Student Table */}
-          <StudentTable 
-            students={students} 
-            onShowQR={handleOpenQR} 
-            onDelete={removeStudent} 
-            onAddStudent={handleAddStudentSubmit}
-          />
+          {/* Grid Layout for Student Table and Detail Panel */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <div className={selectedDetailStudent ? "lg:col-span-7" : "lg:col-span-12"}>
+              {/* Student Table */}
+              <StudentTable 
+                students={students} 
+                onShowQR={handleOpenQR} 
+                onDelete={removeStudent} 
+                onAddStudent={handleAddStudentSubmit}
+                onSelectStudent={setSelectedDetailStudent}
+                selectedStudentId={selectedDetailStudent?.id}
+              />
+            </div>
+
+            {selectedDetailStudent && (
+              <div className="lg:col-span-5 bg-white border border-slate-100 rounded-2xl p-6 shadow-xs">
+                <StudentDetailPanel 
+                  student={selectedDetailStudent}
+                  onClose={() => {
+                    setSelectedDetailStudent(null);
+                  }}
+                  onUpdateStudent={(updated) => {
+                    setSelectedDetailStudent(updated);
+                    refreshData();
+                  }}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
       </main>

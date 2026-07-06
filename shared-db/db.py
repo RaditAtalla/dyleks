@@ -44,6 +44,7 @@ class Student(Base):
     qr_url = Column(String, nullable=False)
     age = Column(Integer, nullable=True)
     gender = Column(String, nullable=True)
+    study_plan = Column(String, nullable=True)
 
 class ActivityLog(Base):
     __tablename__ = "activity_logs"

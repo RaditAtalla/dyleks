@@ -22,6 +22,7 @@ class StudentResponse(BaseModel):
     qrUrl: str = Field(..., validation_alias="qr_url", serialization_alias="qrUrl")
     age: Optional[int] = None
     gender: Optional[str] = None
+    studyPlan: Optional[str] = Field(None, validation_alias="study_plan", serialization_alias="studyPlan")
 
     class Config:
         from_attributes = True

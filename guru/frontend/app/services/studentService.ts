@@ -50,3 +50,35 @@ export const deleteStudent = async (teacherId: string, studentId: string): Promi
     return false;
   }
 };
+
+export const updateStudyPlan = async (studentId: string, studyPlan: string): Promise<Student | null> => {
+  try {
+    const response = await fetch(`${GURU_API_URL}/api/students/${studentId}/study-plan`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ studyPlan }),
+    });
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating study plan:", error);
+    return null;
+  }
+};
+
+export const generateAIStudyPlan = async (studentId: string): Promise<string> => {
+  try {
+    const response = await fetch(`${GURU_API_URL}/api/students/${studentId}/study-plan/generate`, {
+      method: 'POST',
+    });
+    if (!response.ok) return "";
+    const data = await response.json();
+    return data.studyPlan;
+  } catch (error) {
+    console.error("Error generating AI study plan:", error);
+    return "";
+  }
+};
+
