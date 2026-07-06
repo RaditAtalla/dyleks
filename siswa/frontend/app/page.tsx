@@ -86,6 +86,8 @@ export default function Home() {
       router.push('/game/tracer-kinestik');
     } else if (gameId === 'petualangan-huruf') {
       router.push('/game/petualangan-huruf');
+    } else if (gameId === 'latihan-bicara-ai') {
+      router.push('/game/latihan-bicara-ai');
     } else {
       alert(`Permainan "${gameId}" belum tersedia.`);
     }

@@ -139,3 +139,24 @@ export interface GameFinishStageProps {
   onRestart: () => void;
   onHome: () => void;
 }
+
+export interface LatihanBicaraLandingProps {
+  studentName: string;
+  onStartGame: () => void;
+  onBackToHome: () => void;
+}
+
+export interface LatihanBicaraPlayProps {
+  targetWord: string;
+  isSpeaking: boolean;
+  onPlaySound: () => void;
+  isRecording: boolean;
+  onStartRecording: () => void;
+  onStopRecording: () => void;
+  spokenText: string;
+  isSubmitted: boolean;
+  isCorrect: boolean | null;
+  onNextWord: () => void;
+  onQuit: () => void;
+}
+
