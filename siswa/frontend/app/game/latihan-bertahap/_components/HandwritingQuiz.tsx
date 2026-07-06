@@ -53,14 +53,20 @@ export default function HandwritingQuiz({
       activeStreamRef.current = mediaStream;
       setStream(mediaStream);
       setIsCameraActive(true);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
+      // NOTE: srcObject is assigned via a separate useEffect below,
+      // after the <video> element has mounted in the DOM.
     } catch (err) {
       console.error("Camera access error:", err);
       setCameraError("Gagal mengakses kamera. Pastikan izin kamera sudah diberikan.");
     }
   }, []);
+
+  // Assign srcObject to the video element after it mounts (isCameraActive -> true)
+  useEffect(() => {
+    if (stream && videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [stream, isCameraActive]);
 
   // Automatically start camera on mount and reset state on question change
   useEffect(() => {
@@ -68,6 +74,13 @@ export default function HandwritingQuiz({
     setCapturedImage(null);
     setIsLoading(false);
     setCameraError(null);
+
+    // Stop any lingering stream before starting fresh
+    if (activeStreamRef.current) {
+      activeStreamRef.current.getTracks().forEach(track => track.stop());
+      activeStreamRef.current = null;
+    }
+    setStream(null);
     setIsCameraActive(false);
 
     if (!isSubmitted) {
@@ -81,7 +94,8 @@ export default function HandwritingQuiz({
         activeStreamRef.current = null;
       }
     };
-  }, [question, isSubmitted, startCamera]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [question.target]);
 
   // Capture frame and send to TrOCR backend
   const handleCaptureAndAnalyze = async () => {
