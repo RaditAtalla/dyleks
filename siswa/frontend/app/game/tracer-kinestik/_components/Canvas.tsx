@@ -69,11 +69,11 @@ export default function Canvas({
     const coords = getCoords(e);
     if (!coords) return;
 
-    // Check if starting near the active starting point
-    // If currentPointIndex is 0, they must start near points[0]
-    // If currentPointIndex > 0, they must start near points[currentPointIndex - 1] (resuming)
-    const activeStartPoint =
-      currentPointIndex === 0 ? points[0] : points[currentPointIndex - 1];
+    // The active start point is always points[currentPointIndex - 1]
+    // (currentPointIndex starts at 1, so this is always points[0] for a fresh letter,
+    // or the last completed point when resuming mid-letter)
+    const activeStartPoint = points[currentPointIndex - 1];
+    if (!activeStartPoint) return;
 
     const dist = getDistance(coords, activeStartPoint);
     const startThreshold = 35; // Larger threshold for easy child interaction
@@ -107,6 +107,7 @@ export default function Canvas({
     if (dist <= hitThreshold) {
       // Completed the segment!
       const startPoint = points[currentPointIndex - 1];
+      if (!startPoint) return; // Safety guard (should not happen when index starts at 1)
       const newSegment = {
         x1: startPoint.x,
         y1: startPoint.y,
@@ -222,19 +223,6 @@ export default function Canvas({
             y1={points[currentPointIndex - 1].y}
             x2={points[currentPointIndex].x}
             y2={points[currentPointIndex].y}
-            stroke="#6366f1"
-            strokeWidth="3"
-            strokeDasharray="5 5"
-            markerEnd="url(#arrow)"
-            className="animate-pulse"
-          />
-        )}
-        {currentPointIndex === 0 && points.length > 1 && !isTracingActive && (
-          <line
-            x1={points[0].x}
-            y1={points[0].y}
-            x2={points[1].x}
-            y2={points[1].y}
             stroke="#6366f1"
             strokeWidth="3"
             strokeDasharray="5 5"

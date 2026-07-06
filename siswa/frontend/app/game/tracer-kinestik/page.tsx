@@ -64,8 +64,8 @@ export default function TracerKinestik() {
   // Vowel select states (b is selected by default)
   const [selectedLetter, setSelectedLetter] = useState<'b' | 'd' | 'p' | 'q'>('b');
   
-  // Tracing progresses
-  const [currentPointIndex, setCurrentPointIndex] = useState(0);
+  // Tracing progresses — start at 1 so the first target is points[1] (points[0] is the start dot)
+  const [currentPointIndex, setCurrentPointIndex] = useState(1);
   const [completedSegments, setCompletedSegments] = useState<
     Array<{ x1: number; y1: number; x2: number; y2: number }>
   >([]);
@@ -76,7 +76,7 @@ export default function TracerKinestik() {
 
   // Reset tracing state when letter changes
   const resetTracing = () => {
-    setCurrentPointIndex(0);
+    setCurrentPointIndex(1);
     setCompletedSegments([]);
     setShowCongrats(false);
   };
@@ -108,11 +108,11 @@ export default function TracerKinestik() {
     );
   }
 
-  // Active instructions text
+  // Active instructions text — hint is stored at the *source* point of each segment
   const currentHint =
-    currentPointIndex < points.length
-      ? points[currentPointIndex].hint
-      : 'Selesai! Kamu sungguh luar biasa!';
+    currentPointIndex >= points.length
+      ? 'Selesai! Kamu sungguh luar biasa!'
+      : (points[currentPointIndex - 1]?.hint ?? points[0].hint);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-start">
