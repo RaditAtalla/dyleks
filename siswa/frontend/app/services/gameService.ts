@@ -31,7 +31,7 @@ export const saveGameSession = async (
       try {
         const text = await response.text();
         console.error("Response body:", text);
-      } catch (_) {}
+      } catch {}
       return null;
     }
     return await response.json();

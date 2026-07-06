@@ -8,7 +8,6 @@ import {
   School,
   Sparkles,
   Trophy,
-  ChevronRight,
   BookOpen,
   Compass,
   Activity,

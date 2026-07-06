@@ -5,7 +5,6 @@ import { Activity } from 'lucide-react';
 import SessionCard from './SessionCard';
 
 export default function StatsTab({
-  student,
   gameStats,
   sessions,
   expandedSessionId,

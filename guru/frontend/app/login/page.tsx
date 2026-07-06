@@ -23,7 +23,7 @@ export default function LoginPage() {
         setError(res.error || 'Login gagal. Coba lagi.');
         setIsSubmitting(false);
       }
-    } catch (err) {
+    } catch {
       setError('Terjadi kesalahan. Silakan coba lagi.');
       setIsSubmitting(false);
     }

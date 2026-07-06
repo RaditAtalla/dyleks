@@ -26,7 +26,7 @@ export default function RegisterPage() {
         setError(res.error || 'Pendaftaran gagal. Coba lagi.');
         setIsSubmitting(false);
       }
-    } catch (err) {
+    } catch {
       setError('Terjadi kesalahan. Silakan coba lagi.');
       setIsSubmitting(false);
     }

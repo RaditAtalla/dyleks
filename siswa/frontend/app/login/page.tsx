@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useStudentAuth } from '../hooks/useStudentAuth';
-import { QrCode, ShieldAlert, Sparkles, HelpCircle } from 'lucide-react';
+import { QrCode, ShieldAlert, Sparkles } from 'lucide-react';
 
 export default function LoginPage() {
   const { student, loading, requireAuth } = useStudentAuth();

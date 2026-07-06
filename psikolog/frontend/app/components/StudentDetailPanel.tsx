@@ -5,8 +5,8 @@ import { Student, GameSession, PsychologistRecommendation } from '../types';
 import { apiService } from '../services/api';
 import { getPsychologistUser } from '../services/storage';
 import { 
-  User, Calendar, Brain, Award, PenTool, Save, CheckCircle2, 
-  XCircle, FileText, Heart, Activity, Clipboard, Sparkles 
+  Calendar, Brain, PenTool, Save, CheckCircle2, 
+  XCircle, FileText
 } from 'lucide-react';
 
 function getHandwritingFeedback(target: string, answer: string, isCorrect: boolean, accuracy?: number): string {

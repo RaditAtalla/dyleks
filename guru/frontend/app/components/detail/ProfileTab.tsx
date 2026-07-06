@@ -5,7 +5,6 @@ import { Brain, Sparkles, Save, CheckCircle2, XCircle, FileText } from 'lucide-r
 import PsychologistCard from './PsychologistCard';
 
 export default function ProfileTab({
-  student,
   studyPlanText,
   setStudyPlanText,
   isGenerating,

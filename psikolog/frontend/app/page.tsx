@@ -7,7 +7,7 @@ import { apiService } from './services/api';
 import { getPsychologistUser, isAuthenticated, clearPsychologistUser } from './services/storage';
 import StudentDetailPanel from './components/StudentDetailPanel';
 import { 
-  Brain, LogOut, Search, Filter, UserCheck, 
+  Brain, LogOut, Search, UserCheck, 
   ChevronRight, Sparkles, Building, Hash 
 } from 'lucide-react';
 

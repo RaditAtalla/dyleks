@@ -1,6 +1,6 @@
 'use client';
 
-import { ActivityLog, ActivityLogListProps } from '../types';
+import { ActivityLogListProps } from '../types';
 import { UserPlus, Trophy, Trash2, ArrowUpRight, Award } from 'lucide-react';
 
 export default function ActivityLogList({ logs }: ActivityLogListProps) {

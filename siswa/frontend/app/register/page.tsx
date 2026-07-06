@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useStudentAuth } from '../hooks/useStudentAuth';
-import { User, Calendar, Smile, GraduationCap, Gamepad2, ArrowRight } from 'lucide-react';
+import { User, Calendar, Smile, GraduationCap, Gamepad2 } from 'lucide-react';
 
 export default function RegisterPage() {
   const { student, teacher, loading, register, requireAuth } = useStudentAuth();
@@ -58,7 +58,7 @@ export default function RegisterPage() {
         setError(res.error || 'Gagal menyimpan profil.');
         setIsSubmitting(false);
       }
-    } catch (err) {
+    } catch {
       setError('Terjadi kesalahan. Silakan coba lagi.');
       setIsSubmitting(false);
     }

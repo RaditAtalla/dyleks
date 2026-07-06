@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Student, StudentTableProps } from '../types';
+import { StudentTableProps } from '../types';
 import { QrCode, Trash2, Search, UserPlus } from 'lucide-react';
 
 

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
 import { X, Copy, Check } from 'lucide-react';
-import { AddStudentModalProps, Student } from '../types';
+import { AddStudentModalProps } from '../types';
 
 export default function AddStudentModal({ isOpen, onClose, studentId, qrUrl }: AddStudentModalProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
