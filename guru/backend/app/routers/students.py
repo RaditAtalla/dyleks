@@ -6,7 +6,8 @@ import uuid
 import datetime
 
 from db import get_db, Student, ActivityLog
-from app.schemas import StudentSchema
+from app.schemas import StudentSchema, GameSessionResponse, GameStatsResponse
+from app.services.game_service import get_game_sessions, calculate_game_stats
 
 router = APIRouter(prefix="/api/students", tags=["students"])
 
@@ -125,4 +126,13 @@ def generate_study_plan(student_id: str, db: Session = Depends(get_db)):
 * Berikan pujian spesifik pada proses belajar anak, bukan hanya hasil akhir."""
 
     return {"studyPlan": plan}
+
+@router.get("/{student_id}/game-sessions", response_model=List[GameSessionResponse])
+def get_student_sessions(student_id: str, db: Session = Depends(get_db)):
+    return get_game_sessions(db, student_id)
+
+@router.get("/{student_id}/game-stats", response_model=GameStatsResponse)
+def get_student_stats(student_id: str, db: Session = Depends(get_db)):
+    return calculate_game_stats(db, student_id)
+
 

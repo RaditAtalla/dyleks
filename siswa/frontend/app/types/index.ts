@@ -17,6 +17,7 @@ export interface Student {
   qrUrl: string;
   age?: number;
   gender?: 'boy' | 'girl';
+  xp?: number;
 }
 
 export interface ActivityLog {

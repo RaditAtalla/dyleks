@@ -143,6 +143,17 @@ export function useStudentAuth() {
     return { success: false, error: 'Gagal memperbarui profil siswa.' };
   }, [student]);
 
+  const refreshStudent = useCallback(async () => {
+    if (!student) return;
+    const currentData = await getStudentById(student.id);
+    if (currentData) {
+      localStorage.setItem(CURRENT_STUDENT_KEY, JSON.stringify(currentData));
+      setStudent(currentData);
+      const t = await getTeacherById(currentData.teacherId);
+      setTeacher(t);
+    }
+  }, [student]);
+
   const logout = useCallback(() => {
     localStorage.removeItem(CURRENT_STUDENT_KEY);
     setStudent(null);
@@ -174,6 +185,7 @@ export function useStudentAuth() {
     loginWithId,
     register,
     logout,
-    requireAuth
+    requireAuth,
+    refreshStudent
   };
 }

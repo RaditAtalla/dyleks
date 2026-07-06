@@ -13,6 +13,7 @@ export default function HandwritingQuiz({
 }: HandwritingQuizProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const activeStreamRef = useRef<MediaStream | null>(null);
 
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -22,20 +23,22 @@ export default function HandwritingQuiz({
 
   // Stop all camera tracks
   const stopCamera = useCallback(() => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
+    if (activeStreamRef.current) {
+      activeStreamRef.current.getTracks().forEach(track => track.stop());
+      activeStreamRef.current = null;
     }
+    setStream(null);
     setIsCameraActive(false);
-  }, [stream]);
+  }, []);
 
   // Start camera stream
-  const startCamera = async () => {
+  const startCamera = useCallback(async () => {
     setCameraError(null);
     try {
-      // Release any existing stream
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+      // Release any existing stream using ref to avoid stale closures
+      if (activeStreamRef.current) {
+        activeStreamRef.current.getTracks().forEach(track => track.stop());
+        activeStreamRef.current = null;
       }
 
       const mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -47,6 +50,7 @@ export default function HandwritingQuiz({
         audio: false
       });
 
+      activeStreamRef.current = mediaStream;
       setStream(mediaStream);
       setIsCameraActive(true);
       if (videoRef.current) {
@@ -56,20 +60,28 @@ export default function HandwritingQuiz({
       console.error("Camera access error:", err);
       setCameraError("Gagal mengakses kamera. Pastikan izin kamera sudah diberikan.");
     }
-  };
+  }, []);
 
-  // Automatically start camera on mount if not submitted
+  // Automatically start camera on mount and reset state on question change
   useEffect(() => {
+    // Reset state for new question
+    setCapturedImage(null);
+    setIsLoading(false);
+    setCameraError(null);
+    setIsCameraActive(false);
+
     if (!isSubmitted) {
       startCamera();
     }
+
     return () => {
-      // Clean up camera stream on unmount
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+      // Cleanup using ref to guarantee tracks are stopped
+      if (activeStreamRef.current) {
+        activeStreamRef.current.getTracks().forEach(track => track.stop());
+        activeStreamRef.current = null;
       }
     };
-  }, [isSubmitted]);
+  }, [question, isSubmitted, startCamera]);
 
   // Capture frame and send to TrOCR backend
   const handleCaptureAndAnalyze = async () => {

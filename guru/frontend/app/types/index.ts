@@ -18,6 +18,7 @@ export interface Student {
   age?: number;
   gender?: 'boy' | 'girl';
   studyPlan?: string;
+  xp?: number;
 }
 
 export interface ActivityLog {

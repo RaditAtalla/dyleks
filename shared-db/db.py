@@ -45,6 +45,19 @@ class Student(Base):
     age = Column(Integer, nullable=True)
     gender = Column(String, nullable=True)
     study_plan = Column(String, nullable=True)
+    xp = Column(Integer, default=0)
+
+class GameSession(Base):
+    __tablename__ = "game_sessions"
+
+    id = Column(String, primary_key=True, index=True)
+    student_id = Column(String, ForeignKey("students.id"), nullable=False)
+    level = Column(Integer, nullable=False)
+    accuracy = Column(Integer, nullable=False)
+    correct_count = Column(Integer, nullable=False)
+    total_count = Column(Integer, nullable=False)
+    date = Column(String, nullable=False)
+    questions_json = Column(String, nullable=False)
 
 class ActivityLog(Base):
     __tablename__ = "activity_logs"

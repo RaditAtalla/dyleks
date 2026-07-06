@@ -6,21 +6,18 @@ import bcrypt
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import db components relative to project root
-from db import engine, Base, SessionLocal, Teacher, Student, ActivityLog
+from db import engine, Base, SessionLocal, Teacher, Student, ActivityLog, GameSession
+import json
 
 def init():
     # 1. Create tables
     print("Creating database tables...")
+    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     
     # 2. Add mock data
     db = SessionLocal()
     try:
-        # Check if already initialized
-        teacher_exists = db.query(Teacher).filter(Teacher.id == "teacher-1").first()
-        if teacher_exists:
-            print("Database already initialized.")
-            return
 
         print("Seeding default teacher 'teacher-1' (username: bu_siti)...")
         # Hash default password
@@ -47,7 +44,8 @@ def init():
                 current_level=3,
                 risk_score=84,
                 risk_class="high",
-                qr_url="student.dyleks?student_id=412"
+                qr_url="student.dyleks?student_id=412",
+                xp=48
             ),
             Student(
                 id="283",
@@ -57,7 +55,8 @@ def init():
                 current_level=4,
                 risk_score=48,
                 risk_class="medium",
-                qr_url="student.dyleks?student_id=283"
+                qr_url="student.dyleks?student_id=283",
+                xp=70
             ),
             Student(
                 id="719",
@@ -67,7 +66,8 @@ def init():
                 current_level=2,
                 risk_score=12,
                 risk_class="low",
-                qr_url="student.dyleks?student_id=719"
+                qr_url="student.dyleks?student_id=719",
+                xp=25
             ),
             Student(
                 id="542",
@@ -77,12 +77,65 @@ def init():
                 current_level=5,
                 risk_score=68,
                 risk_class="high",
-                qr_url="student.dyleks?student_id=542"
+                qr_url="student.dyleks?student_id=542",
+                xp=95
             )
         ]
         
         for student in mock_students:
             db.add(student)
+        db.commit()
+
+        print("Seeding initial mock game sessions...")
+        q_set1 = json.dumps([
+            {"questionNo": 1, "type": "choice", "target": "A", "answer": "A", "isCorrect": True},
+            {"questionNo": 2, "type": "choice", "target": "I", "answer": "I", "isCorrect": True},
+            {"questionNo": 3, "type": "choice", "target": "U", "answer": "U", "isCorrect": True},
+            {"questionNo": 4, "type": "choice", "target": "E", "answer": "A", "isCorrect": False},
+            {"questionNo": 5, "type": "choice", "target": "O", "answer": "O", "isCorrect": True},
+            {"questionNo": 6, "type": "choice", "target": "A", "answer": "A", "isCorrect": True},
+            {"questionNo": 7, "type": "choice", "target": "I", "answer": "I", "isCorrect": True},
+            {"questionNo": 8, "type": "choice", "target": "U", "answer": "O", "isCorrect": False},
+            {"questionNo": 9, "type": "handwriting", "target": "E", "answer": "I", "isCorrect": False, "ocrAccuracy": 44},
+            {"questionNo": 10, "type": "handwriting", "target": "O", "answer": "O", "isCorrect": True, "ocrAccuracy": 91}
+        ])
+
+        q_set2 = json.dumps([
+            {"questionNo": 1, "type": "choice", "target": "A", "answer": "A", "isCorrect": True},
+            {"questionNo": 2, "type": "choice", "target": "I", "answer": "I", "isCorrect": True},
+            {"questionNo": 3, "type": "choice", "target": "U", "answer": "U", "isCorrect": True},
+            {"questionNo": 4, "type": "choice", "target": "E", "answer": "E", "isCorrect": True},
+            {"questionNo": 5, "type": "choice", "target": "O", "answer": "O", "isCorrect": True},
+            {"questionNo": 6, "type": "choice", "target": "A", "answer": "A", "isCorrect": True},
+            {"questionNo": 7, "type": "choice", "target": "I", "answer": "E", "isCorrect": False},
+            {"questionNo": 8, "type": "choice", "target": "U", "answer": "U", "isCorrect": True},
+            {"questionNo": 9, "type": "handwriting", "target": "A", "answer": "A", "isCorrect": True, "ocrAccuracy": 86},
+            {"questionNo": 10, "type": "handwriting", "target": "U", "answer": "O", "isCorrect": False, "ocrAccuracy": 38}
+        ])
+
+        q_set3 = json.dumps([
+            {"questionNo": 1, "type": "choice", "target": "A", "answer": "A", "isCorrect": True},
+            {"questionNo": 2, "type": "choice", "target": "I", "answer": "I", "isCorrect": True},
+            {"questionNo": 3, "type": "choice", "target": "U", "answer": "U", "isCorrect": True},
+            {"questionNo": 4, "type": "choice", "target": "E", "answer": "E", "isCorrect": True},
+            {"questionNo": 5, "type": "choice", "target": "O", "answer": "O", "isCorrect": True},
+            {"questionNo": 6, "type": "choice", "target": "A", "answer": "A", "isCorrect": True},
+            {"questionNo": 7, "type": "choice", "target": "I", "answer": "I", "isCorrect": True},
+            {"questionNo": 8, "type": "choice", "target": "U", "answer": "U", "isCorrect": True},
+            {"questionNo": 9, "type": "handwriting", "target": "E", "answer": "E", "isCorrect": True, "ocrAccuracy": 95},
+            {"questionNo": 10, "type": "handwriting", "target": "O", "answer": "O", "isCorrect": True, "ocrAccuracy": 91}
+        ])
+
+        mock_sessions = [
+            GameSession(id="sess-1", student_id="412", level=3, accuracy=70, correct_count=7, total_count=10, date="Hari ini, 10:15", questions_json=q_set1),
+            GameSession(id="sess-2", student_id="412", level=2, accuracy=60, correct_count=6, total_count=10, date="Kemarin, 14:30", questions_json=q_set2),
+            GameSession(id="sess-3", student_id="283", level=4, accuracy=80, correct_count=8, total_count=10, date="Hari ini, 09:40", questions_json=q_set1),
+            GameSession(id="sess-4", student_id="283", level=4, accuracy=80, correct_count=8, total_count=10, date="3 hari yang lalu, 11:10", questions_json=q_set2),
+            GameSession(id="sess-5", student_id="719", level=2, accuracy=100, correct_count=10, total_count=10, date="Kemarin, 08:50", questions_json=q_set3)
+        ]
+
+        for sess in mock_sessions:
+            db.add(sess)
         db.commit()
 
         print("Seeding initial logs...")

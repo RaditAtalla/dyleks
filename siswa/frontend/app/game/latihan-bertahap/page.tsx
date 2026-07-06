@@ -1,24 +1,25 @@
 'use client';
-
+ 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStudentAuth } from '../../hooks/useStudentAuth';
 import { QuizQuestion } from '../../types';
+import { saveGameSession } from '../../services/gameService';
 import LandingStage from './_components/LandingStage';
 import QuizStage from './_components/QuizStage';
 import FinishStage from './_components/FinishStage';
-
+ 
 const VOWELS = ['A', 'I', 'U', 'E', 'O'];
-
+ 
 export default function LatihanBertahap() {
-  const { student, loading, requireAuth } = useStudentAuth();
+  const { student, loading, requireAuth, refreshStudent } = useStudentAuth();
   const router = useRouter();
-
+ 
   // Enforce auth check
   useEffect(() => {
     requireAuth();
   }, [student, loading, requireAuth]);
-
+ 
   // Game States
   const [stage, setStage] = useState<'landing' | 'quiz' | 'finish'>('landing');
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -29,7 +30,15 @@ export default function LatihanBertahap() {
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [ocrResult, setOcrResult] = useState<{ detected: string; accuracy: number } | null>(null);
-
+  const [answers, setAnswers] = useState<Array<{
+    questionNo: number;
+    type: 'choice' | 'handwriting';
+    target: string;
+    answer: string;
+    isCorrect: boolean;
+    ocrAccuracy?: number;
+  }>>([]);
+ 
   // Initialize/Reset Game
   const startNewGame = useCallback(() => {
     const newQuestions: QuizQuestion[] = [];
@@ -48,6 +57,7 @@ export default function LatihanBertahap() {
     setCorrectCount(0);
     setIncorrectCount(0);
     setOcrResult(null);
+    setAnswers([]);
     setStage('quiz');
   }, []);
 
@@ -100,6 +110,17 @@ export default function LatihanBertahap() {
       setIncorrectCount(prev => prev + 1);
     }
 
+    setAnswers(prev => [
+      ...prev,
+      {
+        questionNo: currentIndex + 1,
+        type: 'choice',
+        target: currentQuestion.target,
+        answer: selectedOption,
+        isCorrect
+      }
+    ]);
+
     setIsSubmitted(true);
   };
 
@@ -114,17 +135,54 @@ export default function LatihanBertahap() {
       setIncorrectCount(prev => prev + 1);
     }
 
+    setAnswers(prev => [
+      ...prev,
+      {
+        questionNo: currentIndex + 1,
+        type: 'handwriting',
+        target: questions[currentIndex].target,
+        answer: detected,
+        isCorrect,
+        ocrAccuracy: accuracy
+      }
+    ]);
+
     setIsSubmitted(true);
-  }, []);
+  }, [currentIndex, questions]);
 
   // Go to next question or finish page
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentIndex < 9) {
       setCurrentIndex(prev => prev + 1);
       setSelectedOption(null);
       setOcrResult(null);
       setIsSubmitted(false);
     } else {
+      // Save game session to the database
+      const accuracyPercent = Math.round((correctCount / 10) * 100);
+      const payload = {
+        level: student.currentLevel || 1,
+        accuracy: accuracyPercent,
+        correctCount: correctCount,
+        totalCount: 10,
+        questions: answers
+      };
+
+      console.log("Saving game session for student:", student.id);
+      console.log("Session payload:", payload);
+
+      try {
+        const updated = await saveGameSession(student.id, payload);
+        console.log("Save API response updated student:", updated);
+        if (updated) {
+          await refreshStudent();
+          console.log("Student state refreshed successfully.");
+        } else {
+          console.warn("Save API failed or returned null response.");
+        }
+      } catch (error) {
+        console.error("Error saving game session:", error);
+      }
       setStage('finish');
     }
   };

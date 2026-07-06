@@ -4,7 +4,8 @@ import uuid
 import datetime
 
 from db import get_db, Student, ActivityLog
-from app.schemas import StudentResponse, StudentUpdate
+from app.schemas import StudentResponse, StudentUpdate, GameSessionCreate
+from app.services.game_service import create_game_session
 
 router = APIRouter(prefix="/api/students", tags=["students"])
 
@@ -61,3 +62,11 @@ def update_student(student_id: str, update_data: StudentUpdate, db: Session = De
     db.commit()
     
     return student
+
+@router.post("/{student_id}/game-sessions", response_model=StudentResponse)
+def post_game_session(student_id: str, data: GameSessionCreate, db: Session = Depends(get_db)):
+    try:
+        return create_game_session(db, student_id, data)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+

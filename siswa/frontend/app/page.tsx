@@ -36,23 +36,8 @@ export default function Home() {
     );
   }
 
-  // Calculate mock progress percentage based on student's currentLevel
-  const getProgressDetails = (level: number) => {
-    switch (level) {
-      case 1:
-        return { percentage: 5, nextLevel: 2 };
-      case 2:
-        return { percentage: 25, nextLevel: 3 };
-      case 3:
-        return { percentage: 48, nextLevel: 4 };
-      case 4:
-        return { percentage: 70, nextLevel: 5 };
-      default:
-        return { percentage: 95, nextLevel: level + 1 };
-    }
-  };
-
-  const { percentage, nextLevel } = getProgressDetails(student.currentLevel || 1);
+  const percentage = student.xp !== undefined && student.xp !== null ? student.xp : 0;
+  const nextLevel = (student.currentLevel || 1) + 1;
 
   // Games list definition
   const games = [
