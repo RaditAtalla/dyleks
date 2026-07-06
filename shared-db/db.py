@@ -68,6 +68,16 @@ class ActivityLog(Base):
     action = Column(String, nullable=False)
     timestamp = Column(String, nullable=False)
 
+class Psychologist(Base):
+    __tablename__ = "psychologists"
+
+    id = Column(String, primary_key=True, index=True)
+    full_name = Column(String, nullable=False)
+    username = Column(String, unique=True, index=True, nullable=False)
+    str_number = Column(String, nullable=False)
+    clinic = Column(String, nullable=False)
+    password_hash = Column(String, nullable=False)
+
 class PsychologistRecommendation(Base):
     __tablename__ = "psychologist_recommendations"
 
@@ -77,6 +87,7 @@ class PsychologistRecommendation(Base):
     date_created = Column(String, nullable=False)
     clinical_observation = Column(String, nullable=False)
     therapy_plan = Column(String, nullable=False)
+    psychologist_id = Column(String, ForeignKey("psychologists.id"), nullable=True)
 
 def get_db():
     db = SessionLocal()

@@ -171,12 +171,7 @@ export default function Home() {
 
         {/* List of Games */}
         <section className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Daftar Permainan</h3>
-            <span className="text-[10px] font-bold text-indigo-500 flex items-center gap-0.5">
-              Lihat Semua <ChevronRight className="w-3 h-3" />
-            </span>
-          </div>
+          <h3 className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Daftar Permainan</h3>
 
           {/* Grid Layout: 2 Columns */}
           <div className="grid grid-cols-2 gap-3">

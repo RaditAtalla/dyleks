@@ -6,7 +6,7 @@ import bcrypt
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import db components relative to project root
-from db import engine, Base, SessionLocal, Teacher, Student, ActivityLog, GameSession, PsychologistRecommendation
+from db import engine, Base, SessionLocal, Teacher, Student, ActivityLog, GameSession, PsychologistRecommendation, Psychologist
 import json
 
 def init():
@@ -32,6 +32,19 @@ def init():
             password_hash=hashed_password
         )
         db.add(default_teacher)
+        db.commit()
+
+        print("Seeding default psychologist 'psikolog-1' (username: dr_diana)...")
+        hashed_psy_password = bcrypt.hashpw(b"password123", bcrypt.gensalt()).decode("utf-8")
+        default_psychologist = Psychologist(
+            id="psikolog-1",
+            full_name="Dr. Diana Prasetyo, M.Psi., Psikolog",
+            username="dr_diana",
+            str_number="STR-12345-67890",
+            clinic="Klinik Tumbuh Kembang Sejahtera",
+            password_hash=hashed_psy_password
+        )
+        db.add(default_psychologist)
         db.commit()
 
         print("Seeding initial mock students...")
@@ -182,7 +195,8 @@ def init():
                 name="Dr. Diana Prasetyo, M.Psi., Psikolog",
                 date_created="20 Juni 2026",
                 clinical_observation="Siswa menunjukkan hambatan besar pada diskriminasi fonem vokal 'E dan O'. Terdapat kecenderungan disorientasi arah penulisan huruf simetris (b/d). Kognisi verbal normal namun respon tertunda akibat beban kerja memori yang berat.",
-                therapy_plan="Lakukan sesi individual multisensori (VAKT) selama 15 menit setiap pagi sebelum kelas dimulai. Fokus pada tracing taktil huruf-huruf berpasangan. Rujuk ke terapis okupasi untuk memperkuat koordinasi visual-motorik."
+                therapy_plan="Lakukan sesi individual multisensori (VAKT) selama 15 menit setiap pagi sebelum kelas dimulai. Fokus pada tracing taktil huruf-huruf berpasangan. Rujuk ke terapis okupasi untuk memperkuat koordinasi visual-motorik.",
+                psychologist_id="psikolog-1"
             ),
             PsychologistRecommendation(
                 id="rec-2",
@@ -198,7 +212,8 @@ def init():
                 name="Dr. Diana Prasetyo, M.Psi., Psikolog",
                 date_created="15 Juni 2026",
                 clinical_observation="Hambatan membaca ringan. Kadang melakukan fonem pengganti (substitusi) pada kata dasar level 4. Membaca masih tersendat-sendat namun pemahaman bacaan cukup baik.",
-                therapy_plan="Berikan latihan kartu suku kata terstruktur. Mainkan game mencocokkan kartu memori huruf 3x seminggu untuk membangun kelancaran ejaan dasar."
+                therapy_plan="Berikan latihan kartu suku kata terstruktur. Mainkan game mencocokkan kartu memori huruf 3x seminggu untuk membangun kelancaran ejaan dasar.",
+                psychologist_id="psikolog-1"
             ),
             PsychologistRecommendation(
                 id="rec-4",
@@ -214,7 +229,8 @@ def init():
                 name="Dr. Diana Prasetyo, M.Psi., Psikolog",
                 date_created="20 Juni 2026",
                 clinical_observation="Siswa menunjukkan hambatan besar pada diskriminasi fonem vokal 'U dan I'. Terdapat kecenderungan disorientasi arah penulisan huruf simetris (p/q). Kognisi verbal normal namun respon tertunda akibat beban kerja memori yang berat.",
-                therapy_plan="Lakukan sesi individual multisensori (VAKT) selama 15 menit setiap pagi sebelum kelas dimulai. Fokus pada tracing taktil huruf-huruf berpasangan. Rujuk ke terapis okupasi untuk memperkuat koordinasi visual-motorik."
+                therapy_plan="Lakukan sesi individual multisensori (VAKT) selama 15 menit setiap pagi sebelum kelas dimulai. Fokus pada tracing taktil huruf-huruf berpasangan. Rujuk ke terapis okupasi untuk memperkuat koordinasi visual-motorik.",
+                psychologist_id="psikolog-1"
             ),
             PsychologistRecommendation(
                 id="rec-6",
