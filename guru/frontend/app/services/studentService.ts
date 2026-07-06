@@ -1,4 +1,4 @@
-import { Student } from '../types';
+import { Student, PsychologistRecommendation } from '../types';
 import { GURU_API_URL } from './storage';
 
 export const getStudents = async (teacherId: string): Promise<Student[]> => {
@@ -79,6 +79,17 @@ export const generateAIStudyPlan = async (studentId: string): Promise<string> =>
   } catch (error) {
     console.error("Error generating AI study plan:", error);
     return "";
+  }
+};
+
+export const getStudentRecommendations = async (studentId: string): Promise<PsychologistRecommendation[]> => {
+  try {
+    const response = await fetch(`${GURU_API_URL}/api/students/${studentId}/recommendations`);
+    if (!response.ok) return [];
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching recommendations:", error);
+    return [];
   }
 };
 

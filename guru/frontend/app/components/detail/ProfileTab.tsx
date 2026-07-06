@@ -87,9 +87,13 @@ export default function ProfileTab({
         
         {/* Variable height list styled as a fixed-height scroll container */}
         <div className="max-h-[280px] overflow-y-auto space-y-3 pr-1">
-          {psychologists.map((rec) => (
-            <PsychologistCard key={rec.id} recommendation={rec} />
-          ))}
+          {psychologists.length === 0 ? (
+            <p className="text-xs text-slate-400 font-medium italic py-2">Belum ada rekomendasi dari psikolog untuk siswa ini.</p>
+          ) : (
+            psychologists.map((rec) => (
+              <PsychologistCard key={rec.id} recommendation={rec} />
+            ))
+          )}
         </div>
       </div>
     </>

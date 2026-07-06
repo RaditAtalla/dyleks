@@ -61,6 +61,28 @@ def create_game_session(db: Session, student_id: str, data: GameSessionCreate) -
     else:
         student.xp = new_xp
 
+    # Flush the new session to the transaction so it is visible to the query below.
+    # Without this, autoflush=False means new_session is not yet written, causing the
+    # first-ever game session of a student to return an empty list and skip risk recalculation.
+    db.flush()
+
+    # Recalculate dyslexia risk level dynamically based on actual game session accuracy
+    sessions = db.query(GameSession).filter(GameSession.student_id == student.id).all()
+    if sessions:
+        total_accuracy = sum(s.accuracy for s in sessions)
+        avg_accuracy = total_accuracy / len(sessions)
+        risk_score = max(0, min(100, round(100 - avg_accuracy)))
+        
+        if risk_score >= 50:
+            risk_class = "high"
+        elif risk_score >= 20:
+            risk_class = "medium"
+        else:
+            risk_class = "low"
+            
+        student.risk_score = risk_score
+        student.risk_class = risk_class
+
     db.commit()
     db.refresh(student)
 

@@ -87,3 +87,15 @@ class GameStatsResponse(BaseModel):
 
     class Config:
         populate_by_name = True
+
+class PsychologistRecommendationSchema(BaseModel):
+    id: str
+    name: str
+    dateCreated: str = Field(..., validation_alias="date_created", serialization_alias="dateCreated")
+    clinicalObservation: str = Field(..., validation_alias="clinical_observation", serialization_alias="clinicalObservation")
+    therapyPlan: str = Field(..., validation_alias="therapy_plan", serialization_alias="therapyPlan")
+
+    class Config:
+        from_attributes = True
+        populate_by_name = True
+

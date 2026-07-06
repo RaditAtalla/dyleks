@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Student, GameSession } from '../types';
-import { updateStudyPlan, generateAIStudyPlan } from '../services/studentService';
+import { Student, GameSession, PsychologistRecommendation } from '../types';
+import { updateStudyPlan, generateAIStudyPlan, getStudentRecommendations } from '../services/studentService';
 import { getStudentGameSessions, getStudentGameStats } from '../services/gameService';
 
 export function useStudentDetail(student: Student, onUpdateStudent: (updatedStudent: Student) => void) {
@@ -18,6 +18,7 @@ export function useStudentDetail(student: Student, onUpdateStudent: (updatedStud
   // Live game stats states
   const [sessions, setSessions] = useState<GameSession[]>([]);
   const [gameStats, setGameStats] = useState<{ accuracy: string; commonWrong: string }>({ accuracy: '0%', commonWrong: '-' });
+  const [psychologists, setPsychologists] = useState<PsychologistRecommendation[]>([]);
   const [isLoadingStats, setIsLoadingStats] = useState(false);
 
   // Sync state with selected student
@@ -27,31 +28,32 @@ export function useStudentDetail(student: Student, onUpdateStudent: (updatedStud
     // Clear sessions & stats when student changes to avoid showing stale data from the previous student
     setSessions([]);
     setGameStats({ accuracy: '0%', commonWrong: '-' });
+    setPsychologists([]);
   }, [student]);
 
-  // Load stats and sessions when selected student or tab changes
+  // Load stats, sessions and recommendations when selected student changes
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchAllData = async () => {
       if (!student.id) return;
       setIsLoadingStats(true);
       try {
-        const [sessData, statsData] = await Promise.all([
+        const [sessData, statsData, recsData] = await Promise.all([
           getStudentGameSessions(student.id),
-          getStudentGameStats(student.id)
+          getStudentGameStats(student.id),
+          getStudentRecommendations(student.id)
         ]);
         setSessions(sessData);
         setGameStats(statsData);
+        setPsychologists(recsData);
       } catch (e) {
-        console.error("Error loading student stats:", e);
+        console.error("Error loading student details:", e);
       } finally {
         setIsLoadingStats(false);
       }
     };
 
-    if (activeTab === 'stats') {
-      fetchStats();
-    }
-  }, [student.id, activeTab]);
+    fetchAllData();
+  }, [student.id]);
 
   // Handle Save Study Plan
   const handleSavePlan = async () => {
@@ -105,6 +107,7 @@ export function useStudentDetail(student: Student, onUpdateStudent: (updatedStud
     expandedSessionId,
     sessions,
     gameStats,
+    psychologists,
     isLoadingStats,
     handleSavePlan,
     handleGenerateAIPlan,

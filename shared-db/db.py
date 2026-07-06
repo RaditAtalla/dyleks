@@ -68,9 +68,20 @@ class ActivityLog(Base):
     action = Column(String, nullable=False)
     timestamp = Column(String, nullable=False)
 
+class PsychologistRecommendation(Base):
+    __tablename__ = "psychologist_recommendations"
+
+    id = Column(String, primary_key=True, index=True)
+    student_id = Column(String, ForeignKey("students.id"), nullable=False)
+    name = Column(String, nullable=False)
+    date_created = Column(String, nullable=False)
+    clinical_observation = Column(String, nullable=False)
+    therapy_plan = Column(String, nullable=False)
+
 def get_db():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+

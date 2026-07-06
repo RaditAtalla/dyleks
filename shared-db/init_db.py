@@ -6,7 +6,7 @@ import bcrypt
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import db components relative to project root
-from db import engine, Base, SessionLocal, Teacher, Student, ActivityLog, GameSession
+from db import engine, Base, SessionLocal, Teacher, Student, ActivityLog, GameSession, PsychologistRecommendation
 import json
 
 def init():
@@ -173,7 +173,63 @@ def init():
         for log in mock_logs:
             db.add(log)
         db.commit()
-        
+
+        print("Seeding initial mock psychologist recommendations...")
+        mock_recommendations = [
+            PsychologistRecommendation(
+                id="rec-1",
+                student_id="412",
+                name="Dr. Diana Prasetyo, M.Psi., Psikolog",
+                date_created="20 Juni 2026",
+                clinical_observation="Siswa menunjukkan hambatan besar pada diskriminasi fonem vokal 'E dan O'. Terdapat kecenderungan disorientasi arah penulisan huruf simetris (b/d). Kognisi verbal normal namun respon tertunda akibat beban kerja memori yang berat.",
+                therapy_plan="Lakukan sesi individual multisensori (VAKT) selama 15 menit setiap pagi sebelum kelas dimulai. Fokus pada tracing taktil huruf-huruf berpasangan. Rujuk ke terapis okupasi untuk memperkuat koordinasi visual-motorik."
+            ),
+            PsychologistRecommendation(
+                id="rec-2",
+                student_id="412",
+                name="Bambang Irawan, S.Psi., M.Psi.",
+                date_created="02 Juli 2026",
+                clinical_observation="Kecemasan akademik sedang karena sering mengalami kegagalan membaca di depan kelas. Menolak tugas membaca bersuara berparagraf panjang.",
+                therapy_plan="Hindari meminta siswa membaca bersuara di depan kelas tanpa persiapan. Berikan bahan bacaan terstruktur pendek dengan visualisasi yang mendukung konteks cerita."
+            ),
+            PsychologistRecommendation(
+                id="rec-3",
+                student_id="283",
+                name="Dr. Diana Prasetyo, M.Psi., Psikolog",
+                date_created="15 Juni 2026",
+                clinical_observation="Hambatan membaca ringan. Kadang melakukan fonem pengganti (substitusi) pada kata dasar level 4. Membaca masih tersendat-sendat namun pemahaman bacaan cukup baik.",
+                therapy_plan="Berikan latihan kartu suku kata terstruktur. Mainkan game mencocokkan kartu memori huruf 3x seminggu untuk membangun kelancaran ejaan dasar."
+            ),
+            PsychologistRecommendation(
+                id="rec-4",
+                student_id="719",
+                name="Rian Hermawan, S.Psi., M.Psi.",
+                date_created="28 Juni 2026",
+                clinical_observation="Tidak ada hambatan klinis disleksia yang signifikan. Kesalahan minor hanya akibat konsentrasi yang beralih saat tes.",
+                therapy_plan="Pertahankan metode pembelajaran biasa. Lakukan tinjauan berkala 3 bulan sekali melalui game bertahap untuk memastikan perkembangan konsisten."
+            ),
+            PsychologistRecommendation(
+                id="rec-5",
+                student_id="542",
+                name="Dr. Diana Prasetyo, M.Psi., Psikolog",
+                date_created="20 Juni 2026",
+                clinical_observation="Siswa menunjukkan hambatan besar pada diskriminasi fonem vokal 'U dan I'. Terdapat kecenderungan disorientasi arah penulisan huruf simetris (p/q). Kognisi verbal normal namun respon tertunda akibat beban kerja memori yang berat.",
+                therapy_plan="Lakukan sesi individual multisensori (VAKT) selama 15 menit setiap pagi sebelum kelas dimulai. Fokus pada tracing taktil huruf-huruf berpasangan. Rujuk ke terapis okupasi untuk memperkuat koordinasi visual-motorik."
+            ),
+            PsychologistRecommendation(
+                id="rec-6",
+                student_id="542",
+                name="Bambang Irawan, S.Psi., M.Psi.",
+                date_created="02 Juli 2026",
+                clinical_observation="Kecemasan akademik sedang karena sering mengalami kegagalan membaca di depan kelas. Menolak tugas membaca bersuara berparagraf panjang.",
+                therapy_plan="Hindari meminta siswa membaca bersuara di depan kelas tanpa persiapan. Berikan bahan bacaan terstruktur pendek dengan visualisasi yang mendukung konteks cerita."
+            )
+        ]
+
+        for rec in mock_recommendations:
+            db.add(rec)
+        db.commit()
+
         print("Initialization completed successfully!")
         
     except Exception as e:

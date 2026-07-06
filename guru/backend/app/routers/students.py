@@ -5,8 +5,8 @@ from pydantic import BaseModel
 import uuid
 import datetime
 
-from db import get_db, Student, ActivityLog
-from app.schemas import StudentSchema, GameSessionResponse, GameStatsResponse
+from db import get_db, Student, ActivityLog, PsychologistRecommendation
+from app.schemas import StudentSchema, GameSessionResponse, GameStatsResponse, PsychologistRecommendationSchema
 from app.services.game_service import get_game_sessions, calculate_game_stats
 
 router = APIRouter(prefix="/api/students", tags=["students"])
@@ -134,5 +134,12 @@ def get_student_sessions(student_id: str, db: Session = Depends(get_db)):
 @router.get("/{student_id}/game-stats", response_model=GameStatsResponse)
 def get_student_stats(student_id: str, db: Session = Depends(get_db)):
     return calculate_game_stats(db, student_id)
+
+@router.get("/{student_id}/recommendations", response_model=List[PsychologistRecommendationSchema])
+def get_student_recommendations(student_id: str, db: Session = Depends(get_db)):
+    recommendations = db.query(PsychologistRecommendation).filter(
+        PsychologistRecommendation.student_id == student_id
+    ).all()
+    return recommendations
 
 

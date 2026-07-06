@@ -2,7 +2,6 @@
 
 import { StudentDetailPanelProps } from '../types';
 import { useStudentDetail } from '../hooks/useStudentDetail';
-import { getMockRecommendations } from '../services/mockDataService';
 import ProfileTab from './detail/ProfileTab';
 import StatsTab from './detail/StatsTab';
 import { X, FileText, BarChart2, Brain } from 'lucide-react';
@@ -19,6 +18,7 @@ export default function StudentDetailPanel({ student, onClose, onUpdateStudent }
     expandedSessionId,
     sessions,
     gameStats,
+    psychologists,
     handleSavePlan,
     handleGenerateAIPlan,
     handleToggleSession
@@ -34,7 +34,7 @@ export default function StudentDetailPanel({ student, onClose, onUpdateStudent }
   };
   const riskStyle = getRiskColor(student.riskClass);
 
-  const psychologists = getMockRecommendations(student.id, student.name, student.riskClass, student.currentLevel);
+
 
   return (
     <div className="flex flex-col h-full bg-white text-slate-800 animate-fadeIn">
