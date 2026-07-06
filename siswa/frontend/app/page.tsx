@@ -3,16 +3,17 @@
 import { useEffect } from 'react';
 import { useStudentAuth } from './hooks/useStudentAuth';
 import { useRouter } from 'next/navigation';
-import { 
-  User, 
-  School, 
-  Sparkles, 
-  Trophy, 
+import {
+  User,
+  School,
+  Sparkles,
+  Trophy,
   ChevronRight,
   BookOpen,
   Compass,
   Activity,
-  Mic
+  Mic,
+  Play
 } from 'lucide-react';
 
 export default function Home() {
@@ -99,7 +100,7 @@ export default function Home() {
 
       {/* Mobile container */}
       <main className="max-w-md w-full mx-auto px-4 py-6 space-y-5">
-        
+
         {/* Welcome Section */}
         <section className="bg-white border border-slate-100 rounded-2xl p-5 space-y-3 shadow-xs">
           <div>
@@ -108,7 +109,7 @@ export default function Home() {
               Siap untuk berpetualang dan bermain game hari ini?
             </p>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 pt-3 border-t border-slate-100">
             <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
               <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
@@ -153,11 +154,18 @@ export default function Home() {
 
             {/* Visual Progress Bar */}
             <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden border border-slate-150">
-              <div 
+              <div
                 className="bg-indigo-500 h-full rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${percentage}%` }}
               />
             </div>
+
+            <button
+              onClick={() => handleGameClick('latihan-bertahap')}
+              className="mt-6 w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-sm transition-all duration-200 shadow-md shadow-indigo-100/50 flex items-center justify-center gap-2 cursor-pointer transform active:scale-97"
+            >
+              <Play className="w-4 h-4 fill-white" /> Lanjut Latihan Yuk!
+            </button>
           </div>
         </section>
 
@@ -190,7 +198,7 @@ export default function Home() {
                   <p className="text-[10px] text-slate-500 leading-normal line-clamp-2">
                     {game.description}
                   </p>
-                  
+
                   <div className="mt-4 pt-2 border-t border-slate-100/50 flex items-center gap-1 text-[10px] font-bold">
                     <span>Mainkan</span>
                     <Sparkles className="w-3 h-3 text-amber-500" />

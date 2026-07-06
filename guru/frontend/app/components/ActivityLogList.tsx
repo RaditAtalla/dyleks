@@ -48,7 +48,7 @@ export default function ActivityLogList({ logs }: ActivityLogListProps) {
             {[...logs].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).map((log) => (
               <div key={log.id} className="relative group">
                 {/* Timeline Dot Icon */}
-                <div className={`absolute -left-[35px] top-0 p-1.5 rounded-xl ${getLogBg(log.action)} shadow-xs z-10`}>
+                <div className={`absolute left-[-35px] top-0 p-1.5 rounded-xl ${getLogBg(log.action)} shadow-xs z-10`}>
                   {getLogIcon(log.action)}
                 </div>
 
