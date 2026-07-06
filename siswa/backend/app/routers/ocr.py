@@ -36,20 +36,26 @@ async def predict_handwriting(file: UploadFile = File(...), target: str = Form(N
         detected_text = proc.batch_decode(generated_ids, skip_special_tokens=True)[0]
         detected = detected_text.strip().upper()
         
-        # Clean to keep only alphabetical characters and pick the first
+        # Clean to keep only alphabetical characters
         cleaned = "".join([c for c in detected if c.isalpha()])
-        detected_char = cleaned[0] if cleaned else "A"
         
         # Match target
-        target_char = target.strip().upper() if target else "A"
+        target_clean = "".join([c for c in (target or "").strip().upper() if c.isalpha()])
+        if not target_clean:
+            target_clean = "A"
         
-        if detected_char == target_char:
+        if len(target_clean) == 1:
+            detected_match = cleaned[0] if cleaned else "A"
+        else:
+            detected_match = cleaned if cleaned else "A"
+        
+        if detected_match == target_clean:
             accuracy = round(random.uniform(85.0, 98.0), 1)
         else:
             accuracy = round(random.uniform(15.0, 45.0), 1)
             
         return {
-            "detected": detected_char,
+            "detected": detected_match,
             "accuracy": accuracy,
             "fallback": False
         }
@@ -58,9 +64,11 @@ async def predict_handwriting(file: UploadFile = File(...), target: str = Form(N
         print(f"TrOCR prediction failed, using fallback. Error: {e}")
         # Fallback mechanism: if model download fails, times out, or runs out of memory,
         # we return the target vowel with a high accuracy (e.g. 88.5%) to ensure gameplay works.
-        target_char = target.strip().upper() if target else "A"
+        target_clean = "".join([c for c in (target or "").strip().upper() if c.isalpha()])
+        if not target_clean:
+            target_clean = "A"
         return {
-            "detected": target_char,
+            "detected": target_clean,
             "accuracy": 88.5,
             "fallback": True
         }

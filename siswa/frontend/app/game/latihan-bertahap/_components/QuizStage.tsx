@@ -88,7 +88,7 @@ export default function QuizStage({
                   </span>
                 ) : (
                   <span className="text-rose-600 flex items-center gap-1.5">
-                    <XCircle className="w-4 h-4 fill-rose-50 text-rose-650 shrink-0" /> Jawaban kurang tepat, itu huruf "{question.target}"
+                    <XCircle className="w-4 h-4 fill-rose-50 text-rose-650 shrink-0" /> Jawaban kurang tepat, yang benar: "{question.target}"
                   </span>
                 )}
               </div>

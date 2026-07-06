@@ -160,3 +160,11 @@ export interface LatihanBicaraPlayProps {
   onQuit: () => void;
 }
 
+export interface ChallengePool {
+  name: string;
+  items: string[];
+}
+
+export type ChallengePools = Record<number, ChallengePool>;
+
+

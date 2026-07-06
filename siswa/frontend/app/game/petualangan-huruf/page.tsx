@@ -7,29 +7,8 @@ import { MemoryCard } from '../../types';
 import LevelSelectStage from './_components/LevelSelectStage';
 import GamePlayStage from './_components/GamePlayStage';
 import GameFinishStage from './_components/GameFinishStage';
+import { LEVEL_POOLS } from '../challenge-pools';
 
-const LEVEL_POOLS: Record<number, { name: string; items: string[] }> = {
-  1: {
-    name: 'Vokal Tunggal',
-    items: ['A', 'I', 'U', 'E', 'O']
-  },
-  2: {
-    name: 'Suku Kata Tunggal',
-    items: ['ba', 'ca', 'da', 'ma', 'sa', 'li', 'ku', 'to']
-  },
-  3: {
-    name: 'Suku Kata Kompleks',
-    items: ['ban', 'tup', 'sing', 'plat', 'tra', 'nyi', 'klor', 'trans']
-  },
-  4: {
-    name: 'Digraf & Diftong',
-    items: ['ng', 'ny', 'sy', 'kh', 'ai', 'au', 'oi', 'ua']
-  },
-  5: {
-    name: 'Kata Dasar',
-    items: ['main', 'baca', 'tulis', 'makan', 'lari', 'sapu', 'buka', 'beli']
-  }
-};
 
 export default function PetualanganHuruf() {
   const { student, loading, requireAuth } = useStudentAuth();

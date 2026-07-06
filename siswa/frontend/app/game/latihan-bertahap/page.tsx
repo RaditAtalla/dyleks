@@ -8,8 +8,7 @@ import { saveGameSession } from '../../services/gameService';
 import LandingStage from './_components/LandingStage';
 import QuizStage from './_components/QuizStage';
 import FinishStage from './_components/FinishStage';
- 
-const VOWELS = ['A', 'I', 'U', 'E', 'O'];
+import { getChallengePool } from '../challenge-pools';
  
 export default function LatihanBertahap() {
   const { student, loading, requireAuth, refreshStudent } = useStudentAuth();
@@ -41,12 +40,31 @@ export default function LatihanBertahap() {
  
   // Initialize/Reset Game
   const startNewGame = useCallback(() => {
+    const studentLevel = student?.currentLevel || 1;
+    const pool = getChallengePool(studentLevel);
+    const items = pool.items;
+
     const newQuestions: QuizQuestion[] = [];
     for (let i = 0; i < 10; i++) {
-      const randomTarget = VOWELS[Math.floor(Math.random() * VOWELS.length)];
+      const randomTarget = items[Math.floor(Math.random() * items.length)];
+      
+      // Determine options (exactly 5 choices)
+      let options: string[] = [];
+      if (items.length <= 5) {
+        options = [...items];
+      } else {
+        const poolWithoutTarget = items.filter(x => x !== randomTarget);
+        // Randomly sort the pool without target and pick 4 items
+        const shuffledPool = [...poolWithoutTarget].sort(() => 0.5 - Math.random());
+        options = [randomTarget, ...shuffledPool.slice(0, 4)];
+      }
+      
+      // Shuffle the selected options
+      options.sort(() => 0.5 - Math.random());
+
       newQuestions.push({
         target: randomTarget,
-        options: [...VOWELS],
+        options: options,
         type: i < 8 ? 'choice' : 'handwriting' // Questions 9 and 10 are handwriting recognition
       });
     }
@@ -59,7 +77,7 @@ export default function LatihanBertahap() {
     setOcrResult(null);
     setAnswers([]);
     setStage('quiz');
-  }, []);
+  }, [student?.currentLevel]);
 
   // Text to Speech logic
   const playLetterSound = useCallback((letter: string) => {

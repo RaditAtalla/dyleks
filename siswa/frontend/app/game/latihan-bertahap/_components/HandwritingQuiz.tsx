@@ -146,7 +146,7 @@ export default function HandwritingQuiz({
     <div className="space-y-5 w-full flex flex-col items-center">
       <div className="w-full text-center">
         <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-          Tulis huruf "{question.target}" pada kertas, lalu arahkan ke kamera!
+          Tulis {question.target.length > 1 ? 'kata/suku kata' : 'huruf'} "{question.target}" pada kertas, lalu arahkan ke kamera!
         </p>
       </div>
 
@@ -241,7 +241,7 @@ export default function HandwritingQuiz({
             ) : (
               <span className="text-rose-600 flex items-center gap-1.5 leading-relaxed">
                 <XCircle className="w-4 h-4 fill-rose-50 text-rose-600 shrink-0" />
-                Jawaban kurang tepat. Coba tulis lebih jelas huruf "{question.target}" ya!
+                Jawaban kurang tepat. Coba tulis lebih jelas {question.target.length > 1 ? 'kata/suku kata' : 'huruf'} "{question.target}" ya!
               </span>
             )}
           </div>

@@ -8,13 +8,16 @@ export default function ChoiceQuiz({
   onSelectOption,
   isSubmitted
 }: ChoiceQuizProps) {
+  const maxOptionLength = Math.max(...question.options.map(o => o.length));
+  const isWordLayout = maxOptionLength > 2;
+
   return (
-    <div className="space-y-3 w-full">
+    <div className="space-y-4 w-full">
       <p className="text-[10px] font-extrabold text-slate-400 text-center uppercase tracking-wider">
-        Pilih Huruf Vokal yang Sesuai
+        Pilih Jawaban yang Sesuai
       </p>
 
-      <div className="grid grid-cols-5 gap-2 w-full">
+      <div className={isWordLayout ? "flex flex-col gap-2.5 w-full" : "grid grid-cols-5 gap-2 w-full"}>
         {question.options.map((option) => {
           const isSelected = selectedOption === option;
           const isCorrectOption = option === question.target;
@@ -33,13 +36,20 @@ export default function ChoiceQuiz({
             btnStyle = "bg-indigo-50 border-2 border-indigo-500 text-indigo-700 font-black shadow-xs scale-103";
           }
 
+          const buttonClass = isWordLayout
+            ? `py-3 px-5 text-base font-bold rounded-2xl text-center transition-all duration-150 shadow-2xs ${
+                !isSubmitted ? 'cursor-pointer active:scale-98' : 'pointer-events-none'
+              } ${btnStyle}`
+            : `aspect-square flex items-center justify-center text-2xl font-black rounded-2xl transition-all duration-150 shadow-2xs ${
+                !isSubmitted ? 'cursor-pointer active:scale-93' : 'pointer-events-none'
+              } ${btnStyle}`;
+
           return (
             <button
               key={option}
               disabled={isSubmitted}
               onClick={() => onSelectOption(option)}
-              className={`aspect-square flex items-center justify-center text-2xl font-black rounded-2xl transition-all duration-150 shadow-2xs ${!isSubmitted ? 'cursor-pointer active:scale-93' : 'pointer-events-none'
-                } ${btnStyle}`}
+              className={buttonClass}
             >
               {option}
             </button>
