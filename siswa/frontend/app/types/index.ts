@@ -167,4 +167,26 @@ export interface ChallengePool {
 
 export type ChallengePools = Record<number, ChallengePool>;
 
+export interface MazePosition {
+  x: number;
+  y: number;
+}
 
+export interface MazeLayout {
+  grid: number[][];
+  playerStart: MazePosition;
+  letterPositions: MazePosition[];
+}
+
+export interface LabirinPlayStageProps {
+  targetLetter: string;
+  rightCount: number;
+  wrongCount: number;
+  mazeGrid: number[][];
+  playerPosition: MazePosition;
+  letterPositions: MazePosition[];
+  lettersOnMap: string[];
+  onMove: (direction: 'up' | 'down' | 'left' | 'right') => void;
+  onRestart: () => void;
+  onQuit: () => void;
+}

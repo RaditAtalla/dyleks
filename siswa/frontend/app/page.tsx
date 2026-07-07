@@ -88,6 +88,8 @@ export default function Home() {
       router.push('/game/petualangan-huruf');
     } else if (gameId === 'latihan-bicara-ai') {
       router.push('/game/latihan-bicara-ai');
+    } else if (gameId === 'labirin-spasial') {
+      router.push('/game/labirin-spasial');
     } else {
       alert(`Permainan "${gameId}" belum tersedia.`);
     }
@@ -242,7 +244,7 @@ export default function Home() {
               <button
                 id={`adaptive-game-btn-${game.id}`}
                 key={game.id}
-                onClick={() => alert(game.displayName)}
+                onClick={() => handleGameClick(game.id)}
                 className="w-full text-left p-4 bg-white border border-slate-100 rounded-2xl shadow-xs hover:bg-slate-50 transition-all duration-200 cursor-pointer transform active:scale-[0.99] flex flex-col gap-1"
               >
                 <div className="flex items-center gap-2">
