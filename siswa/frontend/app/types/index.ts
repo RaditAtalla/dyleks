@@ -190,3 +190,30 @@ export interface LabirinPlayStageProps {
   onRestart: () => void;
   onQuit: () => void;
 }
+
+export interface Bubble {
+  id: string;
+  syllable: string;
+  baseX: number;
+  x: number;
+  y: number;
+  speed: number;
+  size: number;
+  colorIndex: number;
+  waveOffset: number;
+  amplitude: number;
+  frequency: number;
+}
+
+export interface LetuskanBalonPlayStageProps {
+  currentWord: string;
+  currentSyllables: string[];
+  currentSyllableIndex: number;
+  rightCount: number;
+  wrongCount: number;
+  bubbles: Bubble[];
+  onPopBubble: (bubbleId: string) => void;
+  onRestart: () => void;
+  onQuit: () => void;
+  isWrongFlash: boolean;
+}

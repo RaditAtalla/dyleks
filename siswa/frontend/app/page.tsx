@@ -90,6 +90,8 @@ export default function Home() {
       router.push('/game/latihan-bicara-ai');
     } else if (gameId === 'labirin-spasial') {
       router.push('/game/labirin-spasial');
+    } else if (gameId === 'letuskan-balon') {
+      router.push('/game/letuskan-balon');
     } else {
       alert(`Permainan "${gameId}" belum tersedia.`);
     }
