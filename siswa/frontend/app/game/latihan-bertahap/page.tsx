@@ -175,8 +175,13 @@ export default function LatihanBertahap() {
       setSelectedOption(null);
       setOcrResult(null);
       setIsSubmitted(false);
-    } else {
       // Save game session to the database
+      if (!student) {
+        console.warn("Cannot save session: student is null");
+        setStage('finish');
+        return;
+      }
+
       const accuracyPercent = Math.round((correctCount / 10) * 100);
       const payload = {
         level: student.currentLevel || 1,

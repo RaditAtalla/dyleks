@@ -170,7 +170,12 @@ export default function Home() {
 
         {/* List of Games */}
         <section className="space-y-3">
-          <h3 className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Daftar Permainan</h3>
+          <div>
+            <h3 className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Fokus hari ini</h3>
+            <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+              Pilih latihan yang paling relevan dengan progresmu sekarang.
+            </p>
+          </div>
 
           {/* Grid Layout: 2 Columns */}
           <div className="grid grid-cols-2 gap-3">
@@ -200,6 +205,57 @@ export default function Home() {
                 </button>
               );
             })}
+          </div>
+        </section>
+
+        {/* Adaptive Game Challenges Section */}
+        <section className="space-y-3 pt-2">
+          <h3 className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Tantangan Game Adaptif</h3>
+
+          <div className="space-y-3">
+            {[
+              {
+                id: 'labirin-spasial',
+                displayName: 'Labirin Spasial b/d/p/q',
+                description: 'Latih orientasi spasial kiri-kanan',
+                emoji: '🧭'
+              },
+              {
+                id: 'letuskan-balon',
+                displayName: 'Letuskan Balon Suku Kata',
+                description: 'Latih phonological blending',
+                emoji: '🎈'
+              },
+              {
+                id: 'sight-word-shield',
+                displayName: 'Sight Word Shield',
+                description: 'Latih ketelitian visual membaca',
+                emoji: '🛡️'
+              },
+              {
+                id: 'morpheme-bridge-builder',
+                displayName: 'Morpheme Bridge Builder',
+                description: 'Latih morfologi kata STEM',
+                emoji: '🌉'
+              }
+            ].map((game) => (
+              <button
+                id={`adaptive-game-btn-${game.id}`}
+                key={game.id}
+                onClick={() => alert(game.displayName)}
+                className="w-full text-left p-4 bg-white border border-slate-100 rounded-2xl shadow-xs hover:bg-slate-50 transition-all duration-200 cursor-pointer transform active:scale-[0.99] flex flex-col gap-1"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-base shrink-0">{game.emoji}</span>
+                  <h4 className="text-sm font-bold text-slate-800 leading-tight">
+                    {game.displayName}
+                  </h4>
+                </div>
+                <p className="text-[11px] text-slate-500 font-medium pl-6 leading-normal">
+                  {game.description}
+                </p>
+              </button>
+            ))}
           </div>
         </section>
 
