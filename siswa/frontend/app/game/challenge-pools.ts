@@ -1,4 +1,4 @@
-import { ChallengePools, ChallengePool } from '../types';
+import { ChallengePools, ChallengePool, MorphemeBridgeEntry } from '../types';
 
 export const LEVEL_POOLS: ChallengePools = {
   1: {
@@ -31,3 +31,22 @@ export function getChallengePool(level: number): ChallengePool {
   const targetLevel = level > 5 ? 5 : (level < 1 ? 1 : level);
   return LEVEL_POOLS[targetLevel];
 }
+
+/**
+ * Morpheme Bridge Builder word pool.
+ * Each entry has the target word, correct pieces (in order), and distractor tiles.
+ */
+export const MORPHEME_BRIDGE_POOL: MorphemeBridgeEntry[] = [
+  { target: 'menulis',      pieces: ['me', 'nu', 'lis'],         distractors: ['ber', 'kan'] },
+  { target: 'berlari',      pieces: ['ber', 'la', 'ri'],         distractors: ['me', 'an'] },
+  { target: 'membaca',      pieces: ['mem', 'ba', 'ca'],         distractors: ['kan', 'ter'] },
+  { target: 'berjalan',     pieces: ['ber', 'ja', 'lan'],        distractors: ['me', 'di'] },
+  { target: 'bermain',      pieces: ['ber', 'ma', 'in'],         distractors: ['an', 'ke'] },
+  { target: 'memakan',      pieces: ['me', 'ma', 'kan'],         distractors: ['ber', 'di'] },
+  { target: 'terlihat',     pieces: ['ter', 'li', 'hat'],        distractors: ['me', 'kan'] },
+  { target: 'penulisan',    pieces: ['pe', 'nu', 'li', 'san'],   distractors: ['ber', 'ter'] },
+  { target: 'pembaca',      pieces: ['pem', 'ba', 'ca'],         distractors: ['an', 'ter'] },
+  { target: 'dilakukan',    pieces: ['di', 'la', 'ku', 'kan'],   distractors: ['me', 'ber'] },
+  { target: 'perjalanan',   pieces: ['per', 'ja', 'la', 'nan'],  distractors: ['me', 'di'] },
+  { target: 'pembelajaran', pieces: ['pem', 'be', 'la', 'jar', 'an'], distractors: ['ber', 'ter'] },
+];

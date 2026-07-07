@@ -243,3 +243,29 @@ export interface SightWordShieldPlayStageProps {
   laserLine: { active: boolean; targetX?: number; targetY?: number } | null;
 }
 
+export interface MorphemeBridgeEntry {
+  target: string;
+  pieces: string[];      // correct tiles in order
+  distractors: string[]; // extra wrong tiles mixed into the pool
+}
+
+export interface MorphemeBridgeTile {
+  id: string;
+  label: string;
+  isDistractor: boolean;
+}
+
+export interface MorphemeBridgePlayStageProps {
+  target: string;
+  correctPieces: string[];
+  tilePool: MorphemeBridgeTile[];
+  selectedTiles: MorphemeBridgeTile[];
+  rightCount: number;
+  wrongCount: number;
+  isWrongFlash: boolean;
+  isCorrectFlash: boolean;
+  onTileClick: (tile: MorphemeBridgeTile) => void;
+  onRestart: () => void;
+  onQuit: () => void;
+}
+

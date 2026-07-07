@@ -94,6 +94,8 @@ export default function Home() {
       router.push('/game/letuskan-balon');
     } else if (gameId === 'sight-word-shield') {
       router.push('/game/sight-word-shield');
+    } else if (gameId === 'morpheme-bridge-builder') {
+      router.push('/game/morpheme-bridge-builder');
     } else {
       alert(`Permainan "${gameId}" belum tersedia.`);
     }
