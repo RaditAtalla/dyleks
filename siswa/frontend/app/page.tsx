@@ -92,6 +92,8 @@ export default function Home() {
       router.push('/game/labirin-spasial');
     } else if (gameId === 'letuskan-balon') {
       router.push('/game/letuskan-balon');
+    } else if (gameId === 'sight-word-shield') {
+      router.push('/game/sight-word-shield');
     } else {
       alert(`Permainan "${gameId}" belum tersedia.`);
     }

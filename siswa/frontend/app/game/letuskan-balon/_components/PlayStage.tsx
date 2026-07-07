@@ -93,12 +93,11 @@ export default function PlayStage({
       {/* Main Game Screen Canvas */}
       <div className="flex-1 flex items-center justify-center my-auto">
         <div
-          className={`w-full max-w-[320px] aspect-[4/5] bg-slate-100/50 border-2 border-slate-200 rounded-3xl shadow-inner relative overflow-hidden transition-all duration-300 ${
-            isWrongFlash ? 'animate-shake border-rose-300 bg-rose-50/20' : ''
-          }`}
+          className={`w-full max-w-[320px] aspect-4/5 bg-slate-100/50 border-2 border-slate-200 rounded-3xl shadow-inner relative overflow-hidden transition-all duration-300 ${isWrongFlash ? 'animate-shake border-rose-300 bg-rose-50/20' : ''
+            }`}
         >
           {/* Backdrop Floating Gridlines */}
-          <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(#0f172a_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
+          <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(#0f172a_1px,transparent_1px)] bg-size-[16px_16px] pointer-events-none" />
 
           {/* Target Word Badge (Centered Top) */}
           <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-xs border border-slate-200/80 px-6 py-2 rounded-2xl shadow-sm text-center z-20 min-w-[130px]">
@@ -152,13 +151,12 @@ export default function PlayStage({
             return (
               <div
                 key={`${syllable}-${idx}`}
-                className={`px-4 py-2.5 rounded-xl border text-xs font-black uppercase tracking-wider text-center transition-all duration-300 min-w-[65px] ${
-                  isMatched
+                className={`px-4 py-2.5 rounded-xl border text-xs font-black uppercase tracking-wider text-center transition-all duration-300 min-w-[65px] ${isMatched
                     ? 'bg-cyan-50 border-2 border-cyan-300 text-cyan-600 shadow-[0_0_10px_rgba(6,182,212,0.12)] scale-105'
                     : isNext
-                    ? 'bg-indigo-50/50 border border-indigo-200 border-dashed text-indigo-400 animate-pulse'
-                    : 'bg-slate-50 border-slate-200 text-slate-350'
-                }`}
+                      ? 'bg-indigo-50/50 border border-indigo-200 border-dashed text-indigo-400 animate-pulse'
+                      : 'bg-slate-50 border-slate-200 text-slate-350'
+                  }`}
               >
                 {syllable}
               </div>

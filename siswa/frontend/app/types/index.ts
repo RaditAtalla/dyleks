@@ -217,3 +217,29 @@ export interface LetuskanBalonPlayStageProps {
   onQuit: () => void;
   isWrongFlash: boolean;
 }
+
+export interface Meteor {
+  id: string;
+  word: string;
+  x: number; // horizontal percentage (0-100)
+  y: number; // vertical percentage (0-100)
+  speed: number;
+  isCorrect: boolean;
+  size: number;
+  colorIndex: number;
+  isExploding?: boolean;
+}
+
+export interface SightWordShieldPlayStageProps {
+  currentWord: string;
+  meteors: Meteor[];
+  shieldHealth: number;
+  score: number;
+  highScore: number;
+  onShootMeteor: (meteorId: string) => void;
+  onRestart: () => void;
+  onQuit: () => void;
+  isWrongFlash: boolean;
+  laserLine: { active: boolean; targetX?: number; targetY?: number } | null;
+}
+
