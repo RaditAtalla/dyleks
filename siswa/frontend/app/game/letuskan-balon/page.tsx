@@ -1,11 +1,15 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useStudentAuth } from '../../hooks/useStudentAuth';
 import { Bubble } from '../../types';
 import { getChallengePool } from '../challenge-pools';
 import PlayStage from './_components/PlayStage';
+import { useGameSounds } from '../../hooks/useGameSounds';
+import { Suspense } from 'react';
+import SubLevelMap from '../../components/SubLevelMap';
+import { useSubLevelProgress } from '../../hooks/useSubLevelProgress';
 
 // Pool of filler syllables to spawn as distractors
 const FILLER_SYLLABLES = [
@@ -33,61 +37,50 @@ function getWordSyllables(word: string): string[] {
   return splits[w] || [w];
 }
 
-// Web Audio API pop sound synthesizer
-function playPopSound() {
-  if (typeof window !== 'undefined') {
-    try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(350, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(1000, ctx.currentTime + 0.08);
-
-      gain.gain.setValueAtTime(0.12, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.09);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start();
-      osc.stop(ctx.currentTime + 0.1);
-    } catch {}
-  }
-}
-
-// Web Audio API wrong buzzer synthesizer
-function playWrongSound() {
-  if (typeof window !== 'undefined') {
-    try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(160, ctx.currentTime);
-      osc.frequency.linearRampToValueAtTime(110, ctx.currentTime + 0.22);
-
-      gain.gain.setValueAtTime(0.15, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start();
-      osc.stop(ctx.currentTime + 0.25);
-    } catch {}
-  }
-}
+// Nada suara dimainkan menggunakan hook useGameSounds bawaan portal siswa
 
 export default function LetuskanBalon() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-[#FAF6EE] p-4">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent" />
+          <p className="text-xs text-slate-400 font-medium">Memuat game...</p>
+        </div>
+      </div>
+    }>
+      <LetuskanBalonContent />
+    </Suspense>
+  );
+}
+
+function LetuskanBalonContent() {
   const { student, loading, requireAuth } = useStudentAuth();
   const router = useRouter();
+  const { playCorrect, playWrong } = useGameSounds();
+  const searchParams = useSearchParams();
+  const levelParam = searchParams.get('level');
+
+  const studentLevel = levelParam ? parseInt(levelParam, 10) : (student?.currentLevel || 1);
+
+  const { stageProgress, activeStageNum, setActiveStageNum, handleStageWin } = useSubLevelProgress({
+    gameKey: 'balon',
+    studentLevel,
+  });
+
+  // Map vs Game stage
+  const [gameStage, setGameStage] = useState<'map' | 'game'>('map');
+  const [stageWordsRight, setStageWordsRight] = useState(0);
+  const WORDS_TO_WIN = 5;
+
+  const getLevelName = (lvl: number) => {
+    const names: Record<number, string> = {
+      1: 'Vokal Tunggal', 2: 'Suku Kata Tunggal', 3: 'Suku Kata Kompleks',
+      4: 'Digraf & Diftong', 5: 'Kata Dasar', 6: 'Suku Kata Blending',
+      7: 'Diskriminasi Visual', 8: 'Morfologi Kata'
+    };
+    return names[lvl] || 'Kemampuan Dasar';
+  };
 
   // Enforce authentication check
   useEffect(() => {
@@ -183,8 +176,9 @@ export default function LetuskanBalon() {
       setWrongCount(0);
     }
 
-    // 1. Get word pool (Level 5 has actual base words, lower levels have single syllables/vowels)
-    const pool = getChallengePool(5);
+    // 1. Get word pool (Level-powered challenge pool)
+    const studentLevel = levelParam ? parseInt(levelParam, 10) : (student?.currentLevel || 1);
+    const pool = getChallengePool(studentLevel);
     const poolItems = pool?.items || ['BOLA'];
 
     // 2. Choose random target word
@@ -262,16 +256,24 @@ export default function LetuskanBalon() {
 
     if (clickedBubble.syllable === expectedSyllable) {
       // SUCCESS: Correct syllable popped!
-      playPopSound();
+      playCorrect();
 
       // Check if word completed
       const nextIndex = currentSyllableIndex + 1;
       if (nextIndex >= currentSyllables.length) {
         setRightCount((prev) => prev + 1);
+        const newWordsDone = stageWordsRight + 1;
         
         // Brief pause to display all indicators active, then trigger next word
-        setTimeout(() => {
-          startNewRound(false);
+        setTimeout(async () => {
+          if (newWordsDone >= WORDS_TO_WIN) {
+            setStageWordsRight(0);
+            await handleStageWin();
+            setGameStage('map');
+          } else {
+            setStageWordsRight(newWordsDone);
+            startNewRound(false);
+          }
         }, 600);
       } else {
         setCurrentSyllableIndex(nextIndex);
@@ -285,7 +287,7 @@ export default function LetuskanBalon() {
       });
     } else {
       // FAIL: Wrong syllable popped!
-      playWrongSound();
+      playWrong();
       setWrongCount((prev) => prev + 1);
 
       // Reset sequence progress back to first syllable of the word
@@ -320,11 +322,10 @@ export default function LetuskanBalon() {
   const handleQuit = () => {
     const confirmQuit = window.confirm('Apakah kamu yakin ingin keluar dari permainan?');
     if (confirmQuit) {
-      router.push('/');
+      setGameStage('map');
     }
   };
 
-  // Loading spinner
   if (loading || !student) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
@@ -333,6 +334,31 @@ export default function LetuskanBalon() {
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-900 border-t-transparent" />
           <p className="text-xs text-slate-400 font-medium font-sans">Memuat gelembung...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (gameStage === 'map') {
+    return (
+      <div className="min-h-screen bg-[#FAF6EE] flex flex-col justify-start">
+        <title>Letuskan Balon - DyLeks Siswa</title>
+        <main className="max-w-md w-full mx-auto px-4 py-6 flex flex-col justify-between min-h-screen">
+          <SubLevelMap
+            studentName={student.name}
+            gameName="Letuskan Balon"
+            gameCategory="Permainan Suku Kata"
+            currentLevel={studentLevel}
+            getLevelName={getLevelName}
+            stageProgress={stageProgress}
+            onStartStage={(stageNum) => {
+              setActiveStageNum(stageNum);
+              setStageWordsRight(0);
+              startNewRound(true);
+              setGameStage('game');
+            }}
+            onBackToHome={() => router.push('/')}
+          />
+        </main>
       </div>
     );
   }

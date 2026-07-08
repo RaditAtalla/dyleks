@@ -11,6 +11,15 @@ class StudentUpdate(BaseModel):
     class Config:
         populate_by_name = True
 
+class StudentPlacementUpdate(BaseModel):
+    currentLevel: int = Field(..., alias="currentLevel")
+    riskScore: int = Field(..., alias="riskScore")
+    riskClass: str = Field(..., alias="riskClass")
+    xp: Optional[int] = Field(None, alias="xp")
+
+    class Config:
+        populate_by_name = True
+
 class StudentResponse(BaseModel):
     id: str
     teacherId: str = Field(..., validation_alias="teacher_id", serialization_alias="teacherId")

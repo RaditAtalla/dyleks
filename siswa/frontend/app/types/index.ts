@@ -44,7 +44,9 @@ export interface QuizQuestion {
 
 export interface LandingStageProps {
   studentName: string;
-  onStartGame: () => void;
+  currentLevel: number;
+  stageProgress: Record<number, number>;
+  onStartStage: (stageNum: number) => void;
   onBackToHome: () => void;
 }
 
@@ -119,7 +121,10 @@ export interface MemoryCard {
 }
 
 export interface LevelSelectStageProps {
-  onSelectLevel: (level: number) => void;
+  studentName: string;
+  currentLevel: number;
+  stageProgress: Record<number, number>;
+  onStartStage: (stageNum: number) => void;
   onBackToHome: () => void;
 }
 

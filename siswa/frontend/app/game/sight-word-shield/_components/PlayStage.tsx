@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { SightWordShieldPlayStageProps } from '../../../types';
 import { X, RotateCcw, ShieldAlert } from 'lucide-react';
+import InteractiveMascot from '../../../components/Maskot/InteractiveMascot';
 
 // Web Audio API pop/laser sound synthesizer
 function playLaserSound() {
@@ -292,7 +293,7 @@ export default function PlayStage({
               <button
                 key={meteor.id}
                 onClick={() => onShootMeteor(meteor.id)}
-                className="absolute rounded-full border-2 border-slate-350 bg-white hover:bg-slate-50 text-slate-800 font-black uppercase text-xs tracking-wider select-none cursor-pointer flex items-center justify-center transition-all duration-75 meteor-shadow"
+                className="absolute rounded-full border-2 border-slate-350 bg-white hover:bg-slate-50 text-slate-800 font-black uppercase text-xs tracking-wider select-none cursor-pointer flex items-center justify-center meteor-shadow"
                 style={{
                   left: `${meteor.x}%`,
                   top: `${meteor.y}%`,
@@ -323,17 +324,14 @@ export default function PlayStage({
             </svg>
           )}
 
-          {/* Shield Visual Defenses (Bottom) */}
+          {/* Shield Visual Defenses (Bottom Mascot) */}
           <div className="absolute bottom-[44px] left-0 right-0 h-1 bg-indigo-200/80 z-10">
-            <div className="absolute left-1/2 -translate-x-1/2 -top-5 w-6 h-6 rounded-full bg-indigo-500 border border-indigo-600 shadow-md flex justify-center items-center">
-              <div className="flex gap-0.5">
-                <div className="w-1 h-1 bg-white rounded-full flex items-center justify-center">
-                  <div className="w-0.5 h-0.5 bg-slate-900 rounded-full" />
-                </div>
-                <div className="w-1 h-1 bg-white rounded-full flex items-center justify-center">
-                  <div className="w-0.5 h-0.5 bg-slate-900 rounded-full" />
-                </div>
-              </div>
+            <div className="absolute left-1/2 -translate-x-1/2 -top-11 select-none pointer-events-none">
+              <InteractiveMascot 
+                mood={isWrongFlash ? 'sad' : isGameOver ? 'sad' : 'happy'} 
+                width={48} 
+                height={48} 
+              />
             </div>
           </div>
 

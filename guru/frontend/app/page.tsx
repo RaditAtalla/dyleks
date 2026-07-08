@@ -12,6 +12,7 @@ import ActivityLogList from './components/ActivityLogList';
 import QRModal from './components/QRModal';
 import AddStudentModal from './components/AddStudentModal';
 import StudentDetailPanel from './components/StudentDetailPanel';
+import { InteractiveMascot } from './components/Maskot/InteractiveMascot';
 
 // Icons
 import { 
@@ -53,7 +54,7 @@ export default function DashboardPage() {
 
   if (loading || !teacher) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-550/5 bg-slate-50">
+      <div className="flex min-h-screen items-center justify-center bg-brand-bg">
         <title>Memuat - DyLeks Guru</title>
         <div className="flex flex-col items-center gap-3">
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-900 border-t-transparent" />
@@ -79,7 +80,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-brand-bg flex flex-col">
       <title>Dashboard Guru - DyLeks</title>
 
       {/* Main Content Area */}
@@ -87,21 +88,26 @@ export default function DashboardPage() {
         
         {/* Welcome and Teacher Profile Banner */}
         <div className="bg-white border border-slate-100 rounded-2xl p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-xs">
-          <div className="space-y-3">
-            <div>
-              <h2 className="text-lg font-bold text-slate-800">Selamat datang kembali, {teacher.fullName}!</h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Kelola daftar siswa Anda dan pantau kemajuan skrining disleksia mereka secara berkala.
-              </p>
+          <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
+            <div className="shrink-0 bg-amber-50 rounded-2xl p-1 border border-amber-100/50">
+              <InteractiveMascot mood="happy" width={80} height={80} />
             </div>
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-1 border-t border-slate-100">
-              <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
-                <School className="w-4 h-4 text-slate-400 shrink-0" />
-                <span>{teacher.schoolName}</span>
+            <div className="space-y-3">
+              <div>
+                <h2 className="text-lg font-bold text-slate-800">Selamat datang kembali, {teacher.fullName}!</h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Kelola daftar siswa Anda dan pantau kemajuan skrining disleksia mereka secara berkala.
+                </p>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
-                <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
-                <span>{teacher.city}</span>
+              <div className="flex flex-wrap justify-center sm:justify-start items-center gap-x-6 gap-y-2 pt-1 border-t border-slate-100">
+                <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
+                  <School className="w-4 h-4 text-slate-400 shrink-0" />
+                  <span>{teacher.schoolName}</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
+                  <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                  <span>{teacher.city}</span>
+                </div>
               </div>
             </div>
           </div>

@@ -4,7 +4,7 @@ import uuid
 import datetime
 
 from db import get_db, Student, ActivityLog
-from app.schemas import StudentResponse, StudentUpdate, GameSessionCreate
+from app.schemas import StudentResponse, StudentUpdate, GameSessionCreate, StudentPlacementUpdate
 from app.services.game_service import create_game_session
 
 router = APIRouter(prefix="/api/students", tags=["students"])
@@ -69,4 +69,41 @@ def post_game_session(student_id: str, data: GameSessionCreate, db: Session = De
         return create_game_session(db, student_id, data)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+@router.put("/{student_id}/placement", response_model=StudentResponse)
+def update_student_placement(student_id: str, data: StudentPlacementUpdate, db: Session = Depends(get_db)):
+    student = db.query(Student).filter(Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="Siswa tidak ditemukan.")
+    
+    student.current_level = data.currentLevel
+    student.risk_score = data.riskScore
+    student.risk_class = data.riskClass
+    if data.xp is not None:
+        student.xp = data.xp
+    
+    db.commit()
+    db.refresh(student)
+    
+    # Log the placement completed event to the teacher activity log
+    log_id = str(uuid.uuid4())[:8]
+    timestamp = datetime.datetime.now().strftime("%H:%M") + " - Hari ini"
+    
+    class_label = "Ringan"
+    if data.riskClass == "high":
+        class_label = "Berat"
+    elif data.riskClass == "medium":
+        class_label = "Sedang"
+        
+    new_log = ActivityLog(
+        id=log_id,
+        teacher_id=student.teacher_id,
+        student_name=student.name,
+        action=f"telah menyelesaikan tes penempatan dengan kategori Disleksia {class_label}",
+        timestamp=timestamp
+    )
+    db.add(new_log)
+    db.commit()
+    
+    return student
 

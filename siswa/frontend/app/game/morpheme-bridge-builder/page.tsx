@@ -1,11 +1,14 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useStudentAuth } from '../../hooks/useStudentAuth';
 import { MorphemeBridgeTile } from '../../types';
 import { MORPHEME_BRIDGE_POOL } from '../challenge-pools';
 import PlayStage from './_components/PlayStage';
+import { useGameSounds } from '../../hooks/useGameSounds';
+import SubLevelMap from '../../components/SubLevelMap';
+import { useSubLevelProgress } from '../../hooks/useSubLevelProgress';
 
 // Shuffle helper (Fisher-Yates)
 function shuffleArray<T>(arr: T[]): T[] {
@@ -33,8 +36,47 @@ function buildTilePool(pieces: string[], distractors: string[]): MorphemeBridgeT
 }
 
 export default function MorphemeBridgeBuilder() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-[#FAF6EE] p-4">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent" />
+          <p className="text-xs text-slate-400 font-medium">Memuat game...</p>
+        </div>
+      </div>
+    }>
+      <MorphemeBridgeContent />
+    </Suspense>
+  );
+}
+
+function MorphemeBridgeContent() {
   const { student, loading, requireAuth } = useStudentAuth();
   const router = useRouter();
+  const { playCorrect, playWrong } = useGameSounds();
+  const searchParams = useSearchParams();
+  const levelParam = searchParams.get('level');
+
+  const studentLevel = levelParam ? parseInt(levelParam, 10) : (student?.currentLevel || 1);
+
+  const { stageProgress, activeStageNum, setActiveStageNum, handleStageWin } = useSubLevelProgress({
+    gameKey: 'bridge',
+    studentLevel,
+  });
+
+  // Map vs Game stage
+  const [gameStage, setGameStage] = useState<'map' | 'game'>('map');
+  const [stageWordsRight, setStageWordsRight] = useState(0);
+  const WORDS_TO_WIN = 5;
+
+  const getLevelName = (lvl: number) => {
+    const names: Record<number, string> = {
+      1: 'Vokal Tunggal', 2: 'Suku Kata Tunggal', 3: 'Suku Kata Kompleks',
+      4: 'Digraf & Diftong', 5: 'Kata Dasar', 6: 'Suku Kata Blending',
+      7: 'Diskriminasi Visual', 8: 'Morfologi Kata'
+    };
+    return names[lvl] || 'Kemampuan Dasar';
+  };
 
   useEffect(() => {
     requireAuth();
@@ -121,6 +163,7 @@ export default function MorphemeBridgeBuilder() {
           isProcessingRef.current = true;
           setIsWrongFlash(true);
           setWrongCount((w) => w + 1);
+          playWrong();
 
           setTimeout(() => {
             setIsWrongFlash(false);
@@ -140,17 +183,26 @@ export default function MorphemeBridgeBuilder() {
           isProcessingRef.current = true;
           setIsCorrectFlash(true);
           setRightCount((r) => r + 1);
+          playCorrect();
 
-          setTimeout(() => {
+          setTimeout(async () => {
             setIsCorrectFlash(false);
-            nextWord();
+            const newWordsRight = stageWordsRight + 1;
+            if (newWordsRight >= WORDS_TO_WIN) {
+              setStageWordsRight(0);
+              await handleStageWin();
+              setGameStage('map');
+            } else {
+              setStageWordsRight(newWordsRight);
+              nextWord();
+            }
           }, 700);
         }
 
         return next;
       });
     },
-    [entryOrder, currentEntryIndex, nextWord]
+    [entryOrder, currentEntryIndex, nextWord, stageWordsRight, handleStageWin, WORDS_TO_WIN]
   );
 
   const handleRestart = useCallback(() => {
@@ -158,8 +210,8 @@ export default function MorphemeBridgeBuilder() {
   }, [initGame]);
 
   const handleQuit = useCallback(() => {
-    router.push('/');
-  }, [router]);
+    setGameStage('map');
+  }, []);
 
   // Loading state
   if (loading || !student || entryOrder.length === 0) {
@@ -170,6 +222,31 @@ export default function MorphemeBridgeBuilder() {
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-900 border-t-transparent" />
           <p className="text-xs text-slate-400 font-medium">Memuat jembatan kata...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (gameStage === 'map') {
+    return (
+      <div className="min-h-screen bg-[#FAF6EE] flex flex-col justify-start">
+        <title>Morpheme Bridge Builder - DyLeks Siswa</title>
+        <main className="max-w-md w-full mx-auto px-4 py-6 flex flex-col justify-between min-h-screen">
+          <SubLevelMap
+            studentName={student.name}
+            gameName="Morpheme Bridge"
+            gameCategory="Susun Kata"
+            currentLevel={studentLevel}
+            getLevelName={getLevelName}
+            stageProgress={stageProgress}
+            onStartStage={(stageNum) => {
+              setActiveStageNum(stageNum);
+              setStageWordsRight(0);
+              initGame();
+              setGameStage('game');
+            }}
+            onBackToHome={() => router.push('/')}
+          />
+        </main>
       </div>
     );
   }

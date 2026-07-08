@@ -1,0 +1,115 @@
+<svg width="1024" height="768" viewBox="0 0 1024 768" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Squirrel Body Gradients -->
+    <linearGradient id="sqBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fcae85" />
+      <stop offset="50%" stop-color="#f59c6c" />
+      <stop offset="100%" stop-color="#d97741" />
+    </linearGradient>
+    <linearGradient id="sqTailGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fdd8c5" />
+      <stop offset="100%" stop-color="#f59c6c" />
+    </linearGradient>
+    <linearGradient id="nutGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#b4764d" />
+      <stop offset="100%" stop-color="#854d24" />
+    </linearGradient>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" floodColor="#1e293b" floodOpacity="0.15" />
+    </filter>
+  </defs>
+
+  <!-- Fluffy Tail (Big curled tail on the right) -->
+  <g filter="url(#softShadow)">
+    <path d="M 560 560 C 660 580, 770 540, 770 380 C 770 230, 660 190, 610 260 C 585 300, 620 360, 660 340 C 700 320, 710 390, 690 440 C 670 480, 610 500, 570 480 Z" fill="url(#sqTailGrad)" stroke="#381e4c" stroke-width="5" stroke-linejoin="round" />
+    <path d="M 590 530 C 660 550, 730 510, 730 380 C 730 260, 660 220, 630 270 C 610 300, 630 340, 660 330 C 680 320, 690 370, 680 410 C 660 450, 610 470, 590 450 Z" fill="#ffece2" opacity="0.6" />
+  </g>
+
+  <!-- Left Foot -->
+  <ellipse cx="445" cy="625" rx="22" ry="16" fill="url(#sqBodyGrad)" stroke="#381e4c" stroke-width="4" />
+  <circle cx="445" cy="625" r="10" fill="#ffa7a7" opacity="0.8" />
+  <circle cx="433" cy="615" r="5" fill="#ffa7a7" opacity="0.8" />
+  <circle cx="445" cy="611" r="5" fill="#ffa7a7" opacity="0.8" />
+  <circle cx="457" cy="615" r="5" fill="#ffa7a7" opacity="0.8" />
+
+  <!-- Right Foot -->
+  <ellipse cx="579" cy="625" rx="22" ry="16" fill="url(#sqBodyGrad)" stroke="#381e4c" stroke-width="4" />
+  <circle cx="579" cy="625" r="10" fill="#ffa7a7" opacity="0.8" />
+  <circle cx="567" cy="615" r="5" fill="#ffa7a7" opacity="0.8" />
+  <circle cx="579" cy="611" r="5" fill="#ffa7a7" opacity="0.8" />
+  <circle cx="591" cy="615" r="5" fill="#ffa7a7" opacity="0.8" />
+
+  <!-- Main Body -->
+  <path d="M 450 410 C 390 460, 390 570, 450 620 C 480 640, 544 640, 574 620 C 634 570, 634 460, 574 410 Z" fill="url(#sqBodyGrad)" stroke="#381e4c" stroke-width="5" filter="url(#softShadow)" />
+
+  <!-- Belly Patch (Cream color) -->
+  <path d="M 470 450 C 435 480, 435 560, 470 590 C 490 605, 534 605, 554 590 C 589 560, 589 480, 554 450 Z" fill="#fff5f0" stroke="#ebdcd3" stroke-width="2" />
+
+  <!-- Walnut (Held in front) -->
+  <g filter="url(#softShadow)">
+    <ellipse cx="512" cy="485" rx="46" ry="52" fill="url(#nutGrad)" stroke="#381e4c" stroke-width="5" />
+    <path d="M 512 433 Q 518 485 512 537" fill="none" stroke="#381e4c" stroke-width="4" />
+    <!-- Engraved 'd' Logo -->
+    <!-- Loop of d -->
+    <circle cx="498" cy="485" r="13" fill="none" stroke="#fcae85" stroke-width="5" />
+    <!-- Stem of d -->
+    <path d="M 511 462 L 511 498" fill="none" stroke="#fcae85" stroke-width="5" stroke-linecap="round" />
+  </g>
+
+  <!-- Hands/Paws (Holding Walnut) -->
+  <!-- Left Paw -->
+  <ellipse cx="460" cy="490" rx="14" ry="11" fill="url(#sqBodyGrad)" stroke="#381e4c" stroke-width="4" />
+  <!-- Right Paw -->
+  <ellipse cx="564" cy="490" rx="14" ry="11" fill="url(#sqBodyGrad)" stroke="#381e4c" stroke-width="4" />
+
+  <!-- Left Ear -->
+  <g>
+    <path d="M 440 270 L 405 175 C 400 165, 415 165, 425 175 L 470 235 Z" fill="url(#sqBodyGrad)" stroke="#381e4c" stroke-width="5" stroke-linejoin="round" />
+    <path d="M 437 262 L 414 185 C 412 180, 422 180, 428 185 L 458 232 Z" fill="#ffb4a2" />
+  </g>
+
+  <!-- Right Ear -->
+  <g>
+    <path d="M 584 270 L 619 175 C 624 165, 609 165, 599 175 L 554 235 Z" fill="url(#sqBodyGrad)" stroke="#381e4c" stroke-width="5" stroke-linejoin="round" />
+    <path d="M 587 262 L 610 185 C 612 180, 602 180, 596 185 L 566 232 Z" fill="#ffb4a2" />
+  </g>
+
+  <!-- Head -->
+  <path d="M 425 255 C 360 295, 360 385, 420 425 C 455 455, 569 455, 604 425 C 664 385, 664 295, 599 255 Z" fill="url(#sqBodyGrad)" stroke="#381e4c" stroke-width="5" filter="url(#softShadow)" />
+
+  <!-- Muzzle/Nose Area with Frowning Mouth -->
+  <path d="M 490 350 Q 512 370 534 350" fill="#fff5f0" />
+  <path d="M 500 360 Q 512 350 524 360" fill="none" stroke="#381e4c" stroke-width="3" stroke-linecap="round" />
+  <path d="M 498 346 Q 512 356 526 346" fill="none" stroke="#381e4c" stroke-width="3" stroke-linecap="round" />
+  <polygon points="508,340 516,340 512,345" fill="#381e4c" />
+
+  <!-- Eyes (Angry glares) -->
+  <!-- Left Eye -->
+  <g clip-path="url(#leftEyeClip)">
+    <clipPath id="leftEyeClip">
+      <circle cx="455" cy="318" r="28" />
+    </clipPath>
+    <circle cx="455" cy="318" r="28" fill="#251235" />
+    <!-- Angry inner eyelid -->
+    <path d="M 410 280 L 490 315 L 490 270 Z" fill="#f59c6c" stroke="#381e4c" stroke-width="2" />
+    <circle cx="448" cy="324" r="7" fill="#ffffff" />
+  </g>
+  <!-- Right Eye -->
+  <g clip-path="url(#rightEyeClip)">
+    <clipPath id="rightEyeClip">
+      <circle cx="569" cy="318" r="28" />
+    </clipPath>
+    <circle cx="569" cy="318" r="28" fill="#251235" />
+    <!-- Angry inner eyelid -->
+    <path d="M 614 280 L 534 315 L 534 270 Z" fill="#f59c6c" stroke="#381e4c" stroke-width="2" />
+    <circle cx="576" cy="324" r="7" fill="#ffffff" />
+  </g>
+
+  <!-- Angry Eyebrows -->
+  <path d="M 415 285 L 485 315" stroke="#381e4c" stroke-width="6" stroke-linecap="round" />
+  <path d="M 609 285 L 539 315" stroke="#381e4c" stroke-width="6" stroke-linecap="round" />
+
+  <!-- Blushing Cheeks -->
+  <ellipse cx="415" cy="355" rx="16" ry="9" fill="#ff7676" opacity="0.6" />
+  <ellipse cx="609" cy="355" rx="16" ry="9" fill="#ff7676" opacity="0.6" />
+</svg>

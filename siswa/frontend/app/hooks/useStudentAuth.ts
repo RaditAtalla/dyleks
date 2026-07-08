@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Student, Teacher } from '../types';
-import { getStudentById, updateStudentProfile } from '../services/studentService';
+import { getStudentById, updateStudentProfile, updateStudentPlacement } from '../services/studentService';
 import { getTeacherById } from '../services/teacherService';
 import { CURRENT_STUDENT_KEY } from '../services/storage';
 
@@ -143,6 +143,26 @@ export function useStudentAuth() {
     return { success: false, error: 'Gagal memperbarui profil siswa.' };
   }, [student]);
 
+  const submitPlacement = useCallback(async (
+    level: number,
+    score: number,
+    riskClass: 'low' | 'medium' | 'high',
+    xp?: number
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (!student) {
+      return { success: false, error: 'Sesi siswa tidak valid.' };
+    }
+
+    const updated = await updateStudentPlacement(student.id, level, score, riskClass, xp);
+    if (updated) {
+      localStorage.setItem(CURRENT_STUDENT_KEY, JSON.stringify(updated));
+      setStudent(updated);
+      return { success: true };
+    }
+
+    return { success: false, error: 'Gagal menyimpan hasil penempatan.' };
+  }, [student]);
+
   const refreshStudent = useCallback(async () => {
     if (!student) return;
     const currentData = await getStudentById(student.id);
@@ -186,6 +206,7 @@ export function useStudentAuth() {
     register,
     logout,
     requireAuth,
-    refreshStudent
+    refreshStudent,
+    submitPlacement
   };
 }

@@ -1,9 +1,13 @@
 'use client';
 
-import { X, Volume2, ArrowRight, CheckCircle, XCircle } from 'lucide-react';
+import { X, Volume2 } from 'lucide-react';
 import { QuizStageProps } from '../../../types';
 import ChoiceQuiz from './ChoiceQuiz';
 import HandwritingQuiz from './HandwritingQuiz';
+import DuolingoProgressBar from '../../../components/DuolingoProgressBar';
+import FeedbackFooter from '../../../components/FeedbackFooter';
+import InteractiveMascot from '../../../components/Maskot/InteractiveMascot';
+import { useGamification } from '../../../hooks/useGamification';
 
 export default function QuizStage({
   currentIndex,
@@ -20,80 +24,86 @@ export default function QuizStage({
   onHandwritingResult,
   ocrResult
 }: QuizStageProps) {
+  const gamification = useGamification();
+  
+  // Determine correctness for the FeedbackFooter
+  let isCorrect: boolean | null = null;
+  if (isSubmitted) {
+    if (question.type === 'choice') {
+      isCorrect = selectedOption === question.target;
+    } else {
+      isCorrect = ocrResult ? (ocrResult.accuracy > 50 && ocrResult.detected.toLowerCase() === question.target.toLowerCase()) : false;
+    }
+  }
+
+  // Determine mascot mood based on quiz status
+  let mascotMood: 'neutral' | 'happy' | 'sad' | 'cheering' = 'neutral';
+  if (isSubmitted) {
+    mascotMood = isCorrect ? 'cheering' : 'sad';
+  } else if (isSpeaking) {
+    mascotMood = 'happy';
+  }
+
   return (
-    <div className="flex-1 flex flex-col justify-between py-4">
+    <div className="flex-1 flex flex-col justify-between py-4 min-h-[85vh] pb-32">
       {/* Header, Progress & Exit */}
-      <div className="space-y-3">
-        <div className="flex justify-between items-center">
-          <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">
-            Soal {currentIndex + 1} dari {totalQuestions}
-          </span>
+      <div className="space-y-4 max-w-sm w-full mx-auto">
+        <div className="flex justify-between items-center gap-4">
           <button
             onClick={onQuit}
-            className="p-1.5 hover:bg-slate-100 rounded-full transition-colors cursor-pointer text-slate-400 hover:text-slate-655"
+            className="p-1.5 hover:bg-white rounded-full transition-colors cursor-pointer text-slate-400 hover:text-slate-600"
             aria-label="Keluar Game"
           >
             <X className="w-5 h-5" />
           </button>
+          
+          <DuolingoProgressBar current={currentIndex + 1} total={totalQuestions} />
         </div>
+      </div>
 
-        {/* Progress Bar */}
-        <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-150">
-          <div
-            className="bg-indigo-500 h-full rounded-full transition-all duration-300 ease-out"
-            style={{ width: `${((currentIndex) / totalQuestions) * 100}%` }}
-          />
+      {/* Mascot Speech Area */}
+      <div className="flex flex-col items-center justify-center my-6 max-w-sm w-full mx-auto">
+        <div className="flex items-center gap-4 bg-white p-4 rounded-3xl border border-slate-200/60 shadow-2xs w-full">
+          <div className="shrink-0">
+            <InteractiveMascot mood={mascotMood} width={70} height={70} />
+          </div>
+          <div className="relative bg-slate-50 border border-slate-200 p-3 rounded-2xl flex-1 text-left">
+            {/* Audio play button */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onPlaySound}
+                className={`p-2 rounded-full border transition-all duration-200 flex items-center justify-center cursor-pointer ${
+                  isSpeaking
+                    ? 'bg-indigo-100 text-indigo-700 border-indigo-200 scale-105 animate-pulse'
+                    : 'bg-indigo-50 text-indigo-650 border-indigo-100 hover:bg-indigo-100'
+                }`}
+                aria-label="Putar Suara Huruf"
+              >
+                <Volume2 className="w-4 h-4" />
+              </button>
+              <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wide">
+                {isSpeaking ? 'Mendengarkan...' : 'Ketuk untuk Mendengar'}
+              </span>
+            </div>
+            <p className="text-[11px] font-bold text-slate-655 mt-1.5 leading-normal">
+              {question.type === 'choice' 
+                ? 'Dengarkan suaranya lalu ketuk huruf yang cocok di bawah!' 
+                : `Tulis huruf "${question.target.toUpperCase()}" pada kertas lalu foto dengan kamera!`}
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Quiz Content Card */}
-      <div className="bg-white border border-slate-100 rounded-3xl p-6 py-8 space-y-8 shadow-xs flex flex-col items-center my-auto">
-
-        {/* Speaker Play Area */}
-        <div className="flex flex-col items-center space-y-3">
-          <button
-            onClick={onPlaySound}
-            className={`p-6 rounded-full border transition-all duration-200 flex items-center justify-center cursor-pointer shadow-sm relative ${isSpeaking
-                ? 'bg-indigo-100 text-indigo-700 border-indigo-200 scale-105'
-                : 'bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100 hover:scale-102 active:scale-95'
-              }`}
-            aria-label="Putar Suara Huruf"
-          >
-            <Volume2 className={`w-10 h-10 ${isSpeaking ? 'animate-bounce' : ''}`} />
-            {isSpeaking && (
-              <span className="absolute -inset-1 rounded-full border-2 border-indigo-400 animate-ping opacity-25 pointer-events-none" />
-            )}
-          </button>
-          <span className="text-xs font-semibold text-slate-455 text-slate-400 uppercase tracking-wider">
-            {isSpeaking ? 'Mendengarkan...' : 'Ketuk untuk Mendengar'}
-          </span>
-        </div>
-
+      <div className="bg-white border border-slate-200/60 rounded-3xl p-5 shadow-xs flex flex-col items-center my-auto max-w-sm w-full mx-auto">
         {/* Dynamic Quiz Question Type Switch */}
         {question.type === 'choice' ? (
-          <>
-            <ChoiceQuiz
-              question={question}
-              selectedOption={selectedOption}
-              onSelectOption={onSelectOption}
-              isSubmitted={isSubmitted}
-            />
-
-            {/* Immediate Feedback Text (Choice only) */}
-            {isSubmitted && (
-              <div className="w-full flex items-center justify-center gap-2 py-1.5 px-4 rounded-xl text-xs font-bold transition-all duration-200">
-                {selectedOption === question.target ? (
-                  <span className="text-emerald-600 flex items-center gap-1.5">
-                    <CheckCircle className="w-4 h-4 fill-emerald-50 text-emerald-600 shrink-0" /> Jawaban Benar! Hebat!
-                  </span>
-                ) : (
-                  <span className="text-rose-600 flex items-center gap-1.5">
-                    <XCircle className="w-4 h-4 fill-rose-50 text-rose-650 shrink-0" /> Jawaban kurang tepat, yang benar: "{question.target}"
-                  </span>
-                )}
-              </div>
-            )}
-          </>
+          <ChoiceQuiz
+            question={question}
+            selectedOption={selectedOption}
+            onSelectOption={onSelectOption}
+            isSubmitted={isSubmitted}
+          />
         ) : (
           <HandwritingQuiz
             question={question}
@@ -104,33 +114,16 @@ export default function QuizStage({
         )}
       </div>
 
-      {/* Action buttons */}
-      <div className="pt-2">
-        {/* Submit button only for choice questions */}
-        {question.type === 'choice' && !isSubmitted && (
-          <button
-            disabled={!selectedOption}
-            onClick={onSubmitAnswer}
-            className={`w-full py-4 rounded-2xl font-bold text-sm transition-all duration-250 flex items-center justify-center gap-1.5 ${selectedOption
-                ? 'bg-slate-900 text-white hover:bg-slate-800 cursor-pointer transform active:scale-97'
-                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-              }`}
-          >
-            Kirim Jawaban
-          </button>
-        )}
-
-        {/* Next button shown for both questions after submission */}
-        {isSubmitted && (
-          <button
-            onClick={onNext}
-            className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-sm transition-all duration-200 shadow-md shadow-indigo-100/50 flex items-center justify-center gap-1.5 cursor-pointer transform active:scale-97"
-          >
-            {currentIndex < totalQuestions - 1 ? 'Soal Berikutnya' : 'Lihat Hasil'}
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        )}
-      </div>
+      {/* Bottom Confirmation Drawer */}
+      {(question.type === 'choice' || isSubmitted) && (
+        <FeedbackFooter
+          isCorrect={isCorrect}
+          correctAnswer={question.target}
+          onContinue={onNext}
+          onCheck={onSubmitAnswer}
+          hasSelected={selectedOption !== null}
+        />
+      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../hooks/useAuth';
 import { GraduationCap, ArrowRight, Lock, User } from 'lucide-react';
+import { InteractiveMascot } from '../components/Maskot/InteractiveMascot';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -30,15 +31,15 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-550/5 bg-slate-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-brand-bg px-4 py-12 sm:px-6 lg:px-8">
       {/* Title for SEO / browser tag */}
       <title>Masuk - DyLeks Guru Portal</title>
 
       <div className="w-full max-w-md space-y-8">
         {/* Brand Logo */}
         <div className="flex flex-col items-center text-center">
-          <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-slate-900 text-white shadow-sm mb-4">
-            <GraduationCap className="w-6 h-6" />
+          <div className="bg-white rounded-3xl p-1 border border-slate-100/50 shadow-sm mb-4">
+            <InteractiveMascot mood="neutral" width={100} height={100} />
           </div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-800">
             DyLeks Guru Portal

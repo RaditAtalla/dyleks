@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useStudentAuth } from '../../hooks/useStudentAuth';
 import { MazeLayout, MazePosition } from '../../types';
 import PlayStage from './_components/PlayStage';
+import { useGameSounds } from '../../hooks/useGameSounds';
+import SubLevelMap from '../../components/SubLevelMap';
+import { useSubLevelProgress } from '../../hooks/useSubLevelProgress';
 
 
 // Predefined Maze Layouts
@@ -68,13 +71,52 @@ const MAZE_LAYOUTS: MazeLayout[] = [
 const LETTER_POOL = ['b', 'd', 'p', 'q'];
 
 export default function LabirinSpasial() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-[#FAF6EE] p-4">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent" />
+          <p className="text-xs text-slate-400 font-medium">Memuat game...</p>
+        </div>
+      </div>
+    }>
+      <LabirinSpasialContent />
+    </Suspense>
+  );
+}
+
+function LabirinSpasialContent() {
   const { student, loading, requireAuth } = useStudentAuth();
   const router = useRouter();
+  const { playCorrect, playWrong } = useGameSounds();
+  const searchParams = useSearchParams();
+  const levelParam = searchParams.get('level');
+
+  const studentLevel = levelParam ? parseInt(levelParam, 10) : (student?.currentLevel || 1);
+
+  const { stageProgress, activeStageNum, setActiveStageNum, handleStageWin } = useSubLevelProgress({
+    gameKey: 'labirin',
+    studentLevel,
+  });
 
   // Enforce authentication check
   useEffect(() => {
     requireAuth();
   }, [student, loading, requireAuth]);
+
+  // Map vs Game stage
+  const [stage, setStage] = useState<'map' | 'game'>('map');
+  const [stageRightCount, setStageRightCount] = useState(0);
+  const ROUNDS_TO_WIN = 5;
+
+  const getLevelName = (lvl: number) => {
+    const names: Record<number, string> = {
+      1: 'Vokal Tunggal', 2: 'Suku Kata Tunggal', 3: 'Suku Kata Kompleks',
+      4: 'Digraf & Diftong', 5: 'Kata Dasar', 6: 'Suku Kata Blending',
+      7: 'Diskriminasi Visual', 8: 'Morfologi Kata'
+    };
+    return names[lvl] || 'Kemampuan Dasar';
+  };
 
 
 
@@ -167,13 +209,23 @@ export default function LabirinSpasial() {
       const hitLetter = lettersOnMap[hitIdx];
       
       // Let's pause a micro-second before resetting so player sees collision
-      setTimeout(() => {
+    setTimeout(async () => {
         if (hitLetter.toLowerCase() === targetLetter.toLowerCase()) {
           // Success! Correct Letter
+          playCorrect();
+          const newRight = stageRightCount + 1;
           setRightCount((prev) => prev + 1);
-          startNewRound(false);
+          if (newRight >= ROUNDS_TO_WIN) {
+            setStageRightCount(0);
+            await handleStageWin();
+            setStage('map');
+          } else {
+            setStageRightCount(newRight);
+            startNewRound(false);
+          }
         } else {
           // Fail! Wrong letter gate
+          playWrong();
           setWrongCount((prev) => prev + 1);
           // Reset player back to start of the SAME round to try again
           setPlayerPosition({ ...activeMaze.playerStart });
@@ -194,13 +246,12 @@ export default function LabirinSpasial() {
   const handleQuit = () => {
     const confirmQuit = window.confirm("Apakah kamu yakin ingin keluar dari permainan?");
     if (confirmQuit) {
-      router.push('/');
+      setStage('map');
     }
   };
 
 
 
-  // Loading indicator for authentication check
   if (loading || !student) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
@@ -209,6 +260,31 @@ export default function LabirinSpasial() {
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-900 border-t-transparent" />
           <p className="text-xs text-slate-400 font-medium">Memuat petualangan...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (stage === 'map') {
+    return (
+      <div className="min-h-screen bg-[#FAF6EE] flex flex-col justify-start">
+        <title>Labirin Spasial - DyLeks Siswa</title>
+        <main className="max-w-md w-full mx-auto px-4 py-6 flex flex-col justify-between min-h-screen">
+          <SubLevelMap
+            studentName={student.name}
+            gameName="Labirin Spasial"
+            gameCategory="Diskriminasi Huruf"
+            currentLevel={studentLevel}
+            getLevelName={getLevelName}
+            stageProgress={stageProgress}
+            onStartStage={(stageNum) => {
+              setActiveStageNum(stageNum);
+              setStageRightCount(0);
+              startNewRound(true);
+              setStage('game');
+            }}
+            onBackToHome={() => router.push('/')}
+          />
+        </main>
       </div>
     );
   }

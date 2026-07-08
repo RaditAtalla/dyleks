@@ -1,0 +1,81 @@
+<svg width="1024" height="768" viewBox="0 0 1024 768" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Body Gradients -->
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8be3e0" />
+      <stop offset="50%" stop-color="#79d0cc" />
+      <stop offset="100%" stop-color="#59b2ae" />
+    </linearGradient>
+    <linearGradient id="faceGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#fff8e7" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fcd34d" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" floodColor="#1e293b" floodOpacity="0.15" />
+    </filter>
+  </defs>
+
+  <!-- Left Wing (Relaxed) -->
+  <path d="M 320 370 C 270 410, 240 500, 260 560 C 280 610, 320 610, 330 550 C 340 500, 330 420, 320 370 Z" fill="url(#bodyGrad)" stroke="#285654" stroke-width="4" />
+  <path d="M 275 530 C 285 570, 310 580, 330 550 C 335 520, 330 490, 320 480 Z" fill="#fff7e6" />
+
+  <!-- Right Wing (Relaxed) -->
+  <path d="M 704 370 C 754 410, 784 500, 764 560 C 744 610, 704 610, 694 550 C 684 500, 694 420, 704 370 Z" fill="url(#bodyGrad)" stroke="#285654" stroke-width="4" />
+  <path d="M 749 530 C 739 570, 714 580, 694 550 C 689 520, 694 490, 704 480 Z" fill="#fff7e6" />
+
+  <!-- Claws / Feet -->
+  <!-- Left Foot -->
+  <rect x="420" y="635" width="16" height="28" rx="8" fill="#f59e0b" stroke="#b45309" stroke-width="3" />
+  <rect x="440" y="638" width="16" height="28" rx="8" fill="#f59e0b" stroke="#b45309" stroke-width="3" />
+  <rect x="460" y="635" width="16" height="28" rx="8" fill="#f59e0b" stroke="#b45309" stroke-width="3" />
+  <!-- Right Foot -->
+  <rect x="548" y="635" width="16" height="28" rx="8" fill="#f59e0b" stroke="#b45309" stroke-width="3" />
+  <rect x="568" y="638" width="16" height="28" rx="8" fill="#f59e0b" stroke="#b45309" stroke-width="3" />
+  <rect x="588" y="635" width="16" height="28" rx="8" fill="#f59e0b" stroke="#b45309" stroke-width="3" />
+
+  <!-- Main Body -->
+  <path d="M 360 210 C 430 250, 594 250, 664 210 C 690 190, 710 230, 710 280 C 710 360, 735 500, 710 580 C 680 645, 344 645, 314 580 C 289 500, 314 360, 314 280 C 314 230, 334 190, 360 210 Z" fill="url(#bodyGrad)" stroke="#285654" stroke-width="5" filter="url(#softShadow)" />
+
+  <!-- Face Patch (Overlapping circles) -->
+  <path d="M 350 400 C 350 320, 480 300, 512 370 C 544 300, 674 320, 674 400 C 674 480, 570 480, 512 450 C 454 480, 350 480, 350 400 Z" fill="url(#faceGrad)" stroke="#285654" stroke-width="2" />
+
+  <!-- Belly Patch -->
+  <ellipse cx="512" cy="550" rx="140" ry="85" fill="#fff7e6" stroke="#e2d9c2" stroke-width="2" />
+
+  <!-- db Logo on Belly -->
+  <g>
+    <!-- Loop of d -->
+    <circle cx="476" cy="555" r="26" fill="none" stroke="#79d0cc" stroke-width="12" />
+    <!-- Stem of d -->
+    <path d="M 502 510 L 502 575" fill="none" stroke="#79d0cc" stroke-width="12" stroke-linecap="round" />
+    <!-- Loop of b -->
+    <circle cx="548" cy="555" r="26" fill="none" stroke="#79d0cc" stroke-width="12" />
+    <!-- Stem of b -->
+    <path d="M 522 535 L 522 600" fill="none" stroke="#79d0cc" stroke-width="12" stroke-linecap="round" />
+  </g>
+
+  <!-- Orange Beak -->
+  <path d="M 512 410 Q 528 410 528 430 Q 512 475 512 475 Q 512 475 496 430 Q 496 410 512 410 Z" fill="#ff9e22" stroke="#b45309" stroke-width="3" />
+
+  <!-- Eyes (Neutral Sparkle) -->
+  <!-- Left Eye -->
+  <circle cx="435" cy="390" r="50" fill="#132530" />
+  <circle cx="420" cy="370" r="15" fill="#ffffff" />
+  <circle cx="450" cy="410" r="7.5" fill="#ffffff" />
+  <!-- Right Eye -->
+  <circle cx="589" cy="390" r="50" fill="#132530" />
+  <circle cx="574" cy="370" r="15" fill="#ffffff" />
+  <circle cx="604" cy="410" r="7.5" fill="#ffffff" />
+
+  <!-- Gold Spectacles (Round Glasses) -->
+  <!-- Left Glass Frame -->
+  <circle cx="435" cy="405" r="65" fill="none" stroke="url(#goldGrad)" stroke-width="10" />
+  <!-- Right Glass Frame -->
+  <circle cx="589" cy="405" r="65" fill="none" stroke="url(#goldGrad)" stroke-width="10" />
+  <!-- Bridge -->
+  <path d="M 495 390 Q 512 375 529 390" fill="none" stroke="url(#goldGrad)" stroke-width="10" stroke-linecap="round" />
+</svg>

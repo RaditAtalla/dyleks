@@ -1,12 +1,15 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useStudentAuth } from '../../hooks/useStudentAuth';
 import { TracerPoint } from '../../types';
 import Canvas from './_components/Canvas';
 import CongratsModal from './_components/CongratsModal';
 import { X, RotateCcw, Info, Sparkles } from 'lucide-react';
+import { useGameSounds } from '../../hooks/useGameSounds';
+import SubLevelMap from '../../components/SubLevelMap';
+import { useSubLevelProgress } from '../../hooks/useSubLevelProgress';
 
 // Letter Path Points Definitions
 const LETTER_PATHS: Record<'b' | 'd' | 'p' | 'q', TracerPoint[]> = {
@@ -53,13 +56,41 @@ const LETTER_PATHS: Record<'b' | 'd' | 'p' | 'q', TracerPoint[]> = {
 };
 
 export default function TracerKinestik() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-[#FAF6EE] p-4">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent" />
+          <p className="text-xs text-slate-400 font-medium">Memuat game...</p>
+        </div>
+      </div>
+    }>
+      <TracerKinestikContent />
+    </Suspense>
+  );
+}
+
+function TracerKinestikContent() {
   const { student, loading, requireAuth } = useStudentAuth();
   const router = useRouter();
+  const { playCorrect } = useGameSounds();
+  const searchParams = useSearchParams();
+  const levelParam = searchParams.get('level');
+
+  const studentLevel = levelParam ? parseInt(levelParam, 10) : (student?.currentLevel || 1);
+
+  const { stageProgress, activeStageNum, setActiveStageNum, handleStageWin } = useSubLevelProgress({
+    gameKey: 'tracer',
+    studentLevel,
+  });
 
   // Enforce auth check
   useEffect(() => {
     requireAuth();
   }, [student, loading, requireAuth]);
+
+  // Map vs Game stage
+  const [stage, setStage] = useState<'map' | 'game'>('map');
 
   // Vowel select states (b is selected by default)
   const [selectedLetter, setSelectedLetter] = useState<'b' | 'd' | 'p' | 'q'>('b');
@@ -86,8 +117,19 @@ export default function TracerKinestik() {
   }, [selectedLetter]);
 
   // Complete event
-  const handleComplete = () => {
+  const handleComplete = async () => {
+    playCorrect();
     setShowCongrats(true);
+    await handleStageWin();
+  };
+
+  const getLevelName = (lvl: number) => {
+    const names: Record<number, string> = {
+      1: 'Vokal Tunggal', 2: 'Suku Kata Tunggal', 3: 'Suku Kata Kompleks',
+      4: 'Digraf & Diftong', 5: 'Kata Dasar', 6: 'Suku Kata Blending',
+      7: 'Diskriminasi Visual', 8: 'Morfologi Kata'
+    };
+    return names[lvl] || 'Kemampuan Dasar';
   };
 
   // Safe Back action
@@ -104,6 +146,30 @@ export default function TracerKinestik() {
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-900 border-t-transparent" />
           <p className="text-xs text-slate-400 font-medium">Memuat petualangan...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (stage === 'map') {
+    return (
+      <div className="min-h-screen bg-[#FAF6EE] flex flex-col justify-start">
+        <title>Tracer Kinestik - DyLeks Siswa</title>
+        <main className="max-w-md w-full mx-auto px-4 py-6 flex flex-col justify-between min-h-screen">
+          <SubLevelMap
+            studentName={student.name}
+            gameName="Tracer Kinestik"
+            gameCategory="Permainan Menulis"
+            currentLevel={studentLevel}
+            getLevelName={getLevelName}
+            stageProgress={stageProgress}
+            onStartStage={(stageNum) => {
+              setActiveStageNum(stageNum);
+              resetTracing();
+              setStage('game');
+            }}
+            onBackToHome={() => router.push('/')}
+          />
+        </main>
       </div>
     );
   }
@@ -126,6 +192,7 @@ export default function TracerKinestik() {
         onClose={() => {
           setShowCongrats(false);
           resetTracing();
+          setStage('map');
         }}
         onHome={handleBackToHome}
       />
@@ -137,14 +204,14 @@ export default function TracerKinestik() {
         <div className="flex justify-between items-center pb-1">
           <div>
             <span className="text-[10px] font-extrabold text-indigo-500 uppercase tracking-widest">
-              Permainan Menulis
+              Tahap {activeStageNum}
             </span>
             <h1 className="text-base font-black text-slate-800 leading-tight">Tracer Kinestik</h1>
           </div>
           <button 
-            onClick={handleBackToHome}
+            onClick={() => setStage('map')}
             className="p-2 hover:bg-slate-100 rounded-full transition-colors cursor-pointer text-slate-400 hover:text-slate-600"
-            aria-label="Kembali ke Beranda"
+            aria-label="Kembali ke Peta Tahap"
           >
             <X className="w-5 h-5" />
           </button>

@@ -116,7 +116,7 @@ export default function PlayStage({
               <button
                 key={bubble.id}
                 onClick={() => onPopBubble(bubble.id)}
-                className={`absolute rounded-full border-2 flex items-center justify-center font-black select-none cursor-pointer backdrop-blur-[0.5px] transition-transform duration-75 bubble-glow bg-gradient-to-br ${gradient}`}
+                className={`absolute rounded-full border-2 flex items-center justify-center font-black select-none cursor-pointer backdrop-blur-[0.5px] bubble-glow bg-gradient-to-br ${gradient}`}
                 style={{
                   left: `${bubble.x}%`,
                   top: `${bubble.y}%`,

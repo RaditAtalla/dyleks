@@ -1,18 +1,45 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useStudentAuth } from '../../hooks/useStudentAuth';
 import { MemoryCard } from '../../types';
-import LevelSelectStage from './_components/LevelSelectStage';
 import GamePlayStage from './_components/GamePlayStage';
 import GameFinishStage from './_components/GameFinishStage';
-import { LEVEL_POOLS } from '../challenge-pools';
+import { LEVEL_POOLS, getChallengePool } from '../challenge-pools';
+import { useGameSounds } from '../../hooks/useGameSounds';
+import SubLevelMap from '../../components/SubLevelMap';
+import { useSubLevelProgress } from '../../hooks/useSubLevelProgress';
 
 
 export default function PetualanganHuruf() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-[#FAF6EE] p-4">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent" />
+          <p className="text-xs text-slate-400 font-medium">Memuat game...</p>
+        </div>
+      </div>
+    }>
+      <PetualanganHurufContent />
+    </Suspense>
+  );
+}
+
+function PetualanganHurufContent() {
   const { student, loading, requireAuth } = useStudentAuth();
   const router = useRouter();
+  const { playCorrect, playWrong } = useGameSounds();
+  const searchParams = useSearchParams();
+  const levelParam = searchParams.get('level');
+
+  const studentLevel = levelParam ? parseInt(levelParam, 10) : (student?.currentLevel || 1);
+
+  const { stageProgress, activeStageNum, setActiveStageNum, handleStageWin } = useSubLevelProgress({
+    gameKey: 'memori',
+    studentLevel,
+  });
 
   // Enforce auth check
   useEffect(() => {
@@ -21,24 +48,30 @@ export default function PetualanganHuruf() {
 
   // Stage States
   const [stage, setStage] = useState<'level-select' | 'play' | 'finish'>('level-select');
-  const [currentLevel, setCurrentLevel] = useState<number>(1);
   const [cards, setCards] = useState<MemoryCard[]>([]);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [isLocked, setIsLocked] = useState<boolean>(false);
 
-  // Initialize a level game board
-  const startLevel = (levelId: number) => {
-    const levelData = LEVEL_POOLS[levelId];
-    if (!levelData) return;
+  const handleStartStage = (stageNum: number) => {
+    setActiveStageNum(stageNum);
+    // Determine number of pairs based on stage (Stage 1 = 2 pairs, Stage 2 = 3 pairs, etc.)
+    const pairsCount = stageNum + 1;
+    startLevel(studentLevel, pairsCount);
+  };
 
-    // Pick 4 random unique items from the pool
-    const pool = [...levelData.items];
+  // Initialize a level game board
+  const startLevel = (levelId: number, pairsCount: number = 4) => {
+    const pool = getChallengePool(levelId);
+    if (!pool) return;
+
+    // Pick random unique items from the pool
+    const itemsList = [...pool.items];
     const pickedItems: string[] = [];
-    for (let i = 0; i < 4; i++) {
-      if (pool.length === 0) break;
-      const randIndex = Math.floor(Math.random() * pool.length);
-      pickedItems.push(pool[randIndex]);
-      pool.splice(randIndex, 1);
+    for (let i = 0; i < pairsCount; i++) {
+      if (itemsList.length === 0) break;
+      const randIndex = Math.floor(Math.random() * itemsList.length);
+      pickedItems.push(itemsList[randIndex]);
+      itemsList.splice(randIndex, 1);
     }
 
     // Duplicate to form a list of 8 items (4 pairs)
@@ -60,7 +93,6 @@ export default function PetualanganHuruf() {
     }));
 
     setCards(initCards);
-    setCurrentLevel(levelId);
     setActiveCardId(null);
     setIsLocked(false);
     setStage('play');
@@ -94,6 +126,7 @@ export default function PetualanganHuruf() {
 
       if (firstCard.value === secondCard.value) {
         // MATCH: Keep cards open, mark isMatched
+        playCorrect();
         updatedCards[activeCardIndex] = { ...firstCard, isMatched: true, isRevealed: true };
         updatedCards[cardIndex] = { ...secondCard, isMatched: true, isRevealed: true };
         setCards(updatedCards);
@@ -103,11 +136,12 @@ export default function PetualanganHuruf() {
         const allMatched = updatedCards.every(c => c.isMatched);
         if (allMatched) {
           setTimeout(() => {
-            setStage('finish');
+            handleWin();
           }, 800);
         }
       } else {
         // NO MATCH: Lock board clicks, wait for a moment, then flip both down
+        playWrong();
         setIsLocked(true);
         setTimeout(() => {
           setCards(prevCards => {
@@ -125,13 +159,18 @@ export default function PetualanganHuruf() {
     }
   };
 
-  const handleNextLevel = () => {
-    if (currentLevel < 5) {
-      startLevel(currentLevel + 1);
-    }
+  // Handle Win game progression
+  const handleWin = async () => {
+    await handleStageWin();
+    setStage('finish');
   };
 
-  // Safe quit from gameplay back to level selection
+  const handleRestart = () => {
+    const pairsCount = activeStageNum + 1;
+    startLevel(studentLevel, pairsCount);
+  };
+
+  // Safe quit from gameplay back to stage selection
   const handleQuit = () => {
     const confirmQuit = window.confirm("Apakah kamu yakin ingin keluar dari level ini? Kemajuan permainan level ini tidak akan disimpan.");
     if (confirmQuit) {
@@ -152,7 +191,17 @@ export default function PetualanganHuruf() {
     );
   }
 
-  const activeLevelName = LEVEL_POOLS[currentLevel]?.name || '';
+  const getLevelName = (lvl: number) => {
+    const names: Record<number, string> = {
+      1: 'Vokal Tunggal', 2: 'Suku Kata Tunggal', 3: 'Suku Kata Kompleks',
+      4: 'Digraf & Diftong', 5: 'Kata Dasar', 6: 'Suku Kata Blending',
+      7: 'Diskriminasi Visual', 8: 'Morfologi Kata'
+    };
+    return names[lvl] || 'Kemampuan Dasar';
+  };
+
+  const poolData = LEVEL_POOLS[studentLevel];
+  const activeLevelName = poolData?.name || '';
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-start">
@@ -163,8 +212,18 @@ export default function PetualanganHuruf() {
 
         {/* Stage Selection */}
         {stage === 'level-select' && (
-          <LevelSelectStage
-            onSelectLevel={startLevel}
+          <SubLevelMap
+            studentName={student.name}
+            gameName="Petualangan Huruf"
+            gameCategory="Permainan Memori"
+            currentLevel={studentLevel}
+            getLevelName={getLevelName}
+            stageProgress={stageProgress}
+            onStartStage={(stageNum) => {
+              setActiveStageNum(stageNum);
+              const pairsCount = stageNum + 1;
+              startLevel(studentLevel, pairsCount);
+            }}
             onBackToHome={() => router.push('/')}
           />
         )}
@@ -172,11 +231,14 @@ export default function PetualanganHuruf() {
         {/* Play Stage */}
         {stage === 'play' && (
           <GamePlayStage
-            level={currentLevel}
+            level={studentLevel}
             levelName={activeLevelName}
             cards={cards}
             onCardClick={handleCardClick}
-            onResetLevel={() => startLevel(currentLevel)}
+            onResetLevel={() => {
+              const pairsCount = activeStageNum + 1;
+              startLevel(studentLevel, pairsCount);
+            }}
             onQuit={handleQuit}
           />
         )}
@@ -184,11 +246,11 @@ export default function PetualanganHuruf() {
         {/* Finish Stage */}
         {stage === 'finish' && (
           <GameFinishStage
-            level={currentLevel}
-            hasNextLevel={currentLevel < 5}
-            onNextLevel={handleNextLevel}
-            onRestart={() => startLevel(currentLevel)}
-            onHome={() => router.push('/')}
+            level={studentLevel}
+            hasNextLevel={false}
+            onNextLevel={() => {}}
+            onRestart={handleRestart}
+            onHome={() => setStage('level-select')}
           />
         )}
 

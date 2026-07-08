@@ -6,6 +6,7 @@ import { Student, Psychologist } from './types';
 import { apiService } from './services/api';
 import { getPsychologistUser, isAuthenticated, clearPsychologistUser } from './services/storage';
 import StudentDetailPanel from './components/StudentDetailPanel';
+import { InteractiveMascot } from './components/Maskot/InteractiveMascot';
 import { 
   Brain, LogOut, Search, UserCheck, 
   ChevronRight, Sparkles, Building, Hash 
@@ -80,7 +81,7 @@ export default function PsychologistDashboard() {
 
   if (isAuthChecking) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-50">
+      <div className="flex h-screen items-center justify-center bg-brand-bg">
         <div className="flex flex-col items-center space-y-2">
           <div className="w-8 h-8 border-4 border-slate-900 border-t-transparent animate-spin rounded-full" />
           <span className="text-xs text-slate-400 font-semibold">Memeriksa Sesi...</span>
@@ -90,7 +91,7 @@ export default function PsychologistDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-brand-bg flex flex-col font-sans">
       <title>Dashboard - DyLeks Psikolog Portal</title>
 
       {/* Main Header / Navigation */}
@@ -235,8 +236,8 @@ export default function PsychologistDashboard() {
             />
           ) : (
             <div className="h-full min-h-[350px] bg-white border border-slate-100 rounded-2xl flex flex-col items-center justify-center p-8 text-center shadow-sm">
-              <div className="p-4 bg-slate-50 border border-slate-100 rounded-3xl mb-4">
-                <Sparkles className="w-8 h-8 text-slate-300" />
+              <div className="bg-amber-50 rounded-3xl p-1 border border-amber-100/50 mb-4">
+                <InteractiveMascot mood="neutral" width={110} height={110} />
               </div>
               <h2 className="text-sm font-bold text-slate-800">Pilih Siswa</h2>
               <p className="text-xs text-slate-400 max-w-sm mt-1 leading-relaxed">

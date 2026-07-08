@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { ChoiceQuizProps } from '../../../types';
 
 export default function ChoiceQuiz({
@@ -17,32 +18,35 @@ export default function ChoiceQuiz({
         Pilih Jawaban yang Sesuai
       </p>
 
-      <div className={isWordLayout ? "flex flex-col gap-2.5 w-full" : "grid grid-cols-5 gap-2 w-full"}>
+      <div className={isWordLayout ? "flex flex-col gap-3 w-full" : "grid grid-cols-5 gap-2.5 w-full"}>
         {question.options.map((option) => {
           const isSelected = selectedOption === option;
           const isCorrectOption = option === question.target;
 
-          // Compute dynamic styling based on stage & selection
-          let btnStyle = "bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100";
+          // Compute styles
+          let borderStyle = "border-slate-200 text-slate-700 bg-white hover:bg-slate-50";
+          let activeTransform = "active:translate-y-[4px] active:border-b-0";
+
           if (isSubmitted) {
+            activeTransform = ""; // disable pegas
             if (isCorrectOption) {
-              btnStyle = "bg-emerald-50 border-2 border-emerald-500 text-emerald-700 shadow-xs font-black scale-102";
+              borderStyle = "bg-emerald-50 border-emerald-500 text-emerald-700 font-extrabold";
             } else if (isSelected) {
-              btnStyle = "bg-rose-50 border-2 border-rose-500 text-rose-700 shadow-xs font-black";
+              borderStyle = "bg-rose-50 border-rose-500 text-rose-700 font-extrabold";
             } else {
-              btnStyle = "bg-slate-50 border border-slate-100 text-slate-350 opacity-50 pointer-events-none";
+              borderStyle = "bg-slate-50 border-slate-200 text-slate-300 opacity-60 pointer-events-none";
             }
           } else if (isSelected) {
-            btnStyle = "bg-indigo-50 border-2 border-indigo-500 text-indigo-700 font-black shadow-xs scale-103";
+            borderStyle = "bg-indigo-50 border-indigo-500 text-indigo-700 font-extrabold scale-102";
           }
 
           const buttonClass = isWordLayout
-            ? `py-3 px-5 text-base font-bold rounded-2xl text-center transition-all duration-150 shadow-2xs ${
+            ? `py-3.5 px-5 text-sm font-bold rounded-2xl text-center border-b-4 select-none transition-all duration-100 transform outline-none shadow-xs ${
                 !isSubmitted ? 'cursor-pointer active:scale-98' : 'pointer-events-none'
-              } ${btnStyle}`
-            : `aspect-square flex items-center justify-center text-2xl font-black rounded-2xl transition-all duration-150 shadow-2xs ${
+              } ${borderStyle} ${activeTransform}`
+            : `aspect-square flex items-center justify-center text-xl font-black rounded-2xl border-b-4 select-none transition-all duration-100 transform outline-none shadow-xs ${
                 !isSubmitted ? 'cursor-pointer active:scale-93' : 'pointer-events-none'
-              } ${btnStyle}`;
+              } ${borderStyle} ${activeTransform}`;
 
           return (
             <button

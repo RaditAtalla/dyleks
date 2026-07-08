@@ -1,11 +1,15 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useStudentAuth } from '../../hooks/useStudentAuth';
 import { Meteor } from '../../types';
 import { getChallengePool } from '../challenge-pools';
 import PlayStage from './_components/PlayStage';
+import { useGameSounds } from '../../hooks/useGameSounds';
+import { Suspense } from 'react';
+import SubLevelMap from '../../components/SubLevelMap';
+import { useSubLevelProgress } from '../../hooks/useSubLevelProgress';
 
 // Helper to generate jumbled spelling distractors for a word
 function generateJumbledVersions(word: string, count: number): string[] {
@@ -90,8 +94,47 @@ function generateJumbledVersions(word: string, count: number): string[] {
 }
 
 export default function SightWordShield() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-[#FAF6EE] p-4">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent" />
+          <p className="text-xs text-slate-400 font-medium">Memuat game...</p>
+        </div>
+      </div>
+    }>
+      <SightWordShieldContent />
+    </Suspense>
+  );
+}
+
+function SightWordShieldContent() {
   const { student, loading, requireAuth } = useStudentAuth();
   const router = useRouter();
+  const { playCorrect, playWrong } = useGameSounds();
+  const searchParams = useSearchParams();
+  const levelParam = searchParams.get('level');
+
+  const studentLevel = levelParam ? parseInt(levelParam, 10) : (student?.currentLevel || 1);
+
+  const { stageProgress, activeStageNum, setActiveStageNum, handleStageWin } = useSubLevelProgress({
+    gameKey: 'shield',
+    studentLevel,
+  });
+
+  // Map vs Game stage
+  const [gameStage, setGameStage] = useState<'map' | 'game'>('map');
+  const [stageScore, setStageScore] = useState(0);
+  const SCORE_TO_WIN = 5;
+
+  const getLevelName = (lvl: number) => {
+    const names: Record<number, string> = {
+      1: 'Vokal Tunggal', 2: 'Suku Kata Tunggal', 3: 'Suku Kata Kompleks',
+      4: 'Digraf & Diftong', 5: 'Kata Dasar', 6: 'Suku Kata Blending',
+      7: 'Diskriminasi Visual', 8: 'Morfologi Kata'
+    };
+    return names[lvl] || 'Kemampuan Dasar';
+  };
 
   // Enforce authentication check
   useEffect(() => {
@@ -199,14 +242,14 @@ export default function SightWordShield() {
       isGameOverRef.current = false;
     }
 
-    // Retrieve Level 5 challenge pool word
-    const pool = getChallengePool(5);
+    // Retrieve dynamically powered challenge pool
+    const pool = getChallengePool(studentLevel);
     const poolItems = pool?.items || ['RUMAH'];
     const nextWord = poolItems[Math.floor(Math.random() * poolItems.length)];
 
     setCurrentWord(nextWord);
     spawnMeteors(nextWord);
-  }, [spawnMeteors]);
+  }, [spawnMeteors, studentLevel]);
 
   // Setup round on mount / auth loads
   useEffect(() => {
@@ -269,6 +312,7 @@ export default function SightWordShield() {
       });
 
       if (damage > 0) {
+        playWrong();
         const nextHealth = Math.max(0, shieldHealthRef.current - damage);
         shieldHealthRef.current = nextHealth;
         setShieldHealth(nextHealth);
@@ -281,6 +325,8 @@ export default function SightWordShield() {
 
       // If the correct meteor hit the shield but health is still > 0, start a new round
       if (isMissedCorrectMeteor) {
+        // Hapus meteors segera agar loop tick berikutnya tidak memicu startNewRound berulang kali (mencegah stack update/freeze)
+        setMeteors([]);
         setTimeout(() => {
           if (!isGameOverRef.current) startNewRound(false);
         }, 300);
@@ -330,6 +376,7 @@ export default function SightWordShield() {
 
       if (clicked.isCorrect) {
         // SUCCESS: Correct spelled word shot down!
+        playCorrect();
         setScore((prevScore) => {
           const newScore = prevScore + 1;
           setHighScore((prevHigh) => {
@@ -343,11 +390,20 @@ export default function SightWordShield() {
         });
 
         // Short delay for laser line and explosion particles, then load next word
-        setTimeout(() => {
-          startNewRound(false);
+        setTimeout(async () => {
+          const newStageScore = stageScore + 1;
+          if (newStageScore >= SCORE_TO_WIN) {
+            setStageScore(0);
+            await handleStageWin();
+            setGameStage('map');
+          } else {
+            setStageScore(newStageScore);
+            startNewRound(false);
+          }
         }, 350);
       } else {
         // FAIL: Jumbled spelling clicked — deal 10 damage to shield
+        playWrong();
         const nextHealth = Math.max(0, shieldHealthRef.current - 10);
         shieldHealthRef.current = nextHealth;
         if (nextHealth <= 0) isGameOverRef.current = true;
@@ -373,8 +429,8 @@ export default function SightWordShield() {
   }, [startNewRound]);
 
   const handleQuit = useCallback(() => {
-    router.push('/');
-  }, [router]);
+    setGameStage('map');
+  }, []);
 
   // Loading indicator
   if (loading || !student) {
@@ -385,6 +441,31 @@ export default function SightWordShield() {
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-900 border-t-transparent" />
           <p className="text-xs text-slate-400 font-medium font-sans">Memuat perisai...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (gameStage === 'map') {
+    return (
+      <div className="min-h-screen bg-[#FAF6EE] flex flex-col justify-start">
+        <title>Sight Word Shield - DyLeks Siswa</title>
+        <main className="max-w-md w-full mx-auto px-4 py-6 flex flex-col justify-between min-h-screen">
+          <SubLevelMap
+            studentName={student.name}
+            gameName="Sight Word Shield"
+            gameCategory="Pertahanan Kata"
+            currentLevel={studentLevel}
+            getLevelName={getLevelName}
+            stageProgress={stageProgress}
+            onStartStage={(stageNum) => {
+              setActiveStageNum(stageNum);
+              setStageScore(0);
+              startNewRound(true);
+              setGameStage('game');
+            }}
+            onBackToHome={() => router.push('/')}
+          />
+        </main>
       </div>
     );
   }

@@ -35,3 +35,27 @@ export const updateStudentProfile = async (
     return null;
   }
 };
+
+export const updateStudentPlacement = async (
+  id: string,
+  currentLevel: number,
+  riskScore: number,
+  riskClass: 'low' | 'medium' | 'high',
+  xp?: number
+): Promise<Student | null> => {
+  try {
+    const response = await fetch(`${SISWA_API_URL}/api/students/${id}/placement`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ currentLevel, riskScore, riskClass, xp }),
+    });
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating student placement:", error);
+    return null;
+  }
+};
+
