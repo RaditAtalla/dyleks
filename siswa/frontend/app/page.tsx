@@ -206,10 +206,14 @@ export default function Home() {
 
           {/* Stats indicators */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 select-none" title="Streak Harian">
+            <button
+              onClick={() => setShowStreakModal(true)}
+              className="flex items-center gap-1.5 select-none hover:bg-orange-550/10 active:scale-95 transition-all p-1.5 rounded-xl border border-transparent hover:border-orange-100/50 cursor-pointer"
+              title="Streak Harian"
+            >
               <img src="/mascot/fire.svg" className="w-5 h-5 shrink-0" alt="Streak" />
               <span className="text-xs font-black text-orange-500">{gamification.state.streak}</span>
-            </div>
+            </button>
             
             <button
               onClick={logout}
@@ -375,6 +379,7 @@ export default function Home() {
       <StreakModal 
         isOpen={showStreakModal} 
         streakCount={gamification.state.streak} 
+        lastActiveDate={gamification.state.lastActiveDate}
         onClose={handleCloseStreakModal} 
       />
 

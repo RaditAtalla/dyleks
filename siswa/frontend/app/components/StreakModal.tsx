@@ -4,18 +4,84 @@ import { Check } from 'lucide-react';
 interface StreakModalProps {
   isOpen: boolean;
   streakCount: number;
+  lastActiveDate: string | null;
   onClose: () => void;
 }
 
 export const StreakModal: React.FC<StreakModalProps> = ({
   isOpen,
   streakCount,
+  lastActiveDate,
   onClose,
 }) => {
   if (!isOpen) return null;
 
-  const daysOfWeek = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-  const todayIndex = new Date().getDay(); // 0: Sunday, 1: Monday, ...
+  const daysOfWeekNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+  
+  const today = new Date();
+  const todayDateString = today.toDateString();
+  const todayIndex = today.getDay();
+
+  interface DisplayDay {
+    name: string;
+    dateString: string;
+    isActive: boolean;
+    isToday: boolean;
+  }
+
+  const displayDays: DisplayDay[] = [];
+
+  if (streakCount === 0) {
+    // Jika streak 0, hanya tampilkan hari ini sebagai target tidak aktif
+    displayDays.push({
+      name: daysOfWeekNames[todayIndex],
+      dateString: todayDateString,
+      isActive: false,
+      isToday: true,
+    });
+  } else {
+    const lastActive = lastActiveDate ? new Date(lastActiveDate) : new Date();
+    
+    // Cari kapan streak dimulai: lastActive - (streakCount - 1) hari
+    const startDate = new Date(lastActive);
+    startDate.setDate(startDate.getDate() - (streakCount - 1));
+    
+    // Tentukan batas akhir tampilan:
+    // Jika aktivitas terakhir adalah kemarin, kita ingin tetap menampilkan hari ini sebagai target pending
+    const endDate = new Date(today);
+    
+    // Iterasi untuk membuat rentang hari dari startDate ke endDate
+    const tempDate = new Date(startDate);
+    const maxDays = Math.max(7, streakCount + 2); // Batas aman loop
+    let count = 0;
+    
+    while (tempDate <= endDate && count < maxDays) {
+      const tempDateString = tempDate.toDateString();
+      const tempDateObj = new Date(tempDate);
+      
+      const isActive = tempDateObj >= startDate && tempDateObj <= lastActive;
+      const isToday = tempDateString === todayDateString;
+      
+      displayDays.push({
+        name: daysOfWeekNames[tempDate.getDay()],
+        dateString: tempDateString,
+        isActive,
+        isToday,
+      });
+      
+      tempDate.setDate(tempDate.getDate() + 1);
+      count++;
+    }
+
+    if (displayDays.length === 0) {
+      displayDays.push({
+        name: daysOfWeekNames[todayIndex],
+        dateString: todayDateString,
+        isActive: true,
+        isToday: true,
+      });
+    }
+  }
 
   return (
     <div className="fixed inset-0 bg-[#131f24] z-50 flex flex-col justify-between p-6 text-white font-sans">
@@ -48,31 +114,29 @@ export const StreakModal: React.FC<StreakModalProps> = ({
 
         {/* Calendar Card */}
         <div className="bg-[#1f2e35] border border-slate-700/50 rounded-3xl p-5 w-full space-y-4 shadow-xl">
-          <div className="flex justify-between items-center px-1">
-            {daysOfWeek.map((day, idx) => {
-              // Active days: all days in current week up to today
-              const isActive = idx <= todayIndex;
-              const isToday = idx === todayIndex;
-
+          <div className="flex justify-center gap-4 flex-wrap items-center px-1">
+            {displayDays.map((day) => {
               return (
-                <div key={day} className="flex flex-col items-center space-y-2">
+                <div key={day.dateString} className="flex flex-col items-center space-y-2">
                   <span className={`text-[11px] font-black uppercase tracking-wider ${
-                    isToday ? 'text-[#ff9600]' : 'text-slate-400'
+                    day.isToday ? 'text-[#ff9600]' : 'text-slate-400'
                   }`}>
-                    {day}
+                    {day.name}
                   </span>
                   
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
-                    isToday
-                      ? 'border-[#ff9600] bg-[#ff9600] text-white shadow-[0_0_8px_rgba(255,150,0,0.5)]'
-                      : isActive
-                        ? 'border-[#ff9600] bg-[#ff9600] text-white'
-                        : 'border-slate-650 border-[#2d3a41] bg-[#1a262c]'
+                    day.isActive
+                      ? day.isToday
+                        ? 'border-[#ff9600] bg-[#ff9600] text-white shadow-[0_0_8px_rgba(255,150,0,0.5)]'
+                        : 'border-[#ff9600] bg-[#ff9600] text-white'
+                      : day.isToday
+                        ? 'border-[#ff9600] border-dashed bg-[#1a262c] text-[#ff9600]'
+                        : 'border-[#2d3a41] bg-[#1a262c]'
                   }`}>
-                    {isActive ? (
+                    {day.isActive ? (
                       <Check className="w-4 h-4 stroke-[3px]" />
                     ) : (
-                      <div className="w-2.5 h-2.5 rounded-full bg-slate-700/50" />
+                      <div className={`w-2.5 h-2.5 rounded-full ${day.isToday ? 'bg-[#ff9600]/40' : 'bg-slate-700/50'}`} />
                     )}
                   </div>
                 </div>
